@@ -1,0 +1,98 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - img "小巢宝 卵巢癌助手" [ref=f1e4]
+      - generic [ref=f1e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=f1e6]:
+        - button "看板" [ref=f1e233] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e234]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=f1e235] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e236]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=f1e237] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e238]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=f1e239] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e240]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=f1e241] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e242]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=f1e243] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e244]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=f1e245] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e246]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=f1e247] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e248]: ☆
+          - text: 收藏与回顾
+      - generic [ref=f1e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=f1e24] [cursor=pointer]
+    - generic [ref=f1e25]:
+      - banner [ref=f1e26]:
+        - generic [ref=f1e27]:
+          - text: 小巢宝工作台
+          - generic [ref=f1e28]: / 临床
+        - generic [ref=f1e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=f1e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=f1e31]: 原生会话 · 未连接
+          - button "大字" [ref=f1e32] [cursor=pointer]
+          - button "设置" [ref=f1e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e34]: ⚙
+          - button "复诊问题 0" [ref=f1e35] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=f1e36]: "0"
+      - main [ref=f1e37]:
+        - generic [ref=f1e249]:
+          - generic [ref=f1e250]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=f1e251] [cursor=pointer]
+        - generic [ref=f1e253]:
+          - generic [ref=f1e254]: 小巢宝 · PATIENT WORKBENCH
+          - heading "临床" [level=1] [ref=f1e255]
+          - generic [ref=f1e256]: 从你正在经历的事情开始：治疗讨论、身体变化、报告，或一个想问的问题。
+        - generic "二级导航" [ref=f1e257]:
+          - button "治疗历程" [ref=f1e258] [cursor=pointer]
+          - button "临床档案" [ref=f1e259] [cursor=pointer]
+          - button "腹部与穿刺" [ref=f1e260] [cursor=pointer]
+          - button "术后排便/造口" [ref=f1e261] [cursor=pointer]
+          - button "遗传报告" [ref=f1e262] [cursor=pointer]
+          - button "试验检索" [ref=f1e263] [cursor=pointer]
+          - button "资料对照" [ref=f1e264] [cursor=pointer]
+          - button "我的关注" [ref=f1e265] [cursor=pointer]
+          - button "数据来源" [ref=f1e266] [cursor=pointer]
+        - generic [ref=f1e267]:
+          - heading "手术后，哪些变化影响了日常生活？" [level=2] [ref=f1e268]
+          - paragraph [ref=f1e269]: 可以记录排便或造口带来的困扰，也可以只查看团队给过的材料。没做过造口就不用填写造口内容。
+          - generic [ref=f1e270]:
+            - generic [ref=f1e271]:
+              - generic [ref=f1e272]:
+                - text: 日期
+                - textbox "日期" [ref=f1e273]: 2026-10-17
+              - generic [ref=f1e274]:
+                - text: 我想记下
+                - combobox "我想记下" [ref=f1e275]:
+                  - option "排便次数或规律变化" [selected]
+                  - option "急迫感或外出安排受影响"
+                  - option "造口渗漏或更换用品的困扰"
+                  - option "造口周围皮肤让我担心"
+                  - option "目前没有特别变化，只准备问题"
+            - generic [ref=f1e276]:
+              - text: 对生活的影响（可跳过）
+              - textbox "对生活的影响（可跳过）" [ref=f1e277]:
+                - /placeholder: 例如：最近不太敢出门，想问团队有哪些支持。
+            - group [ref=f1e278]:
+              - generic "如果我有造口，想补充（均可跳过）" [ref=f1e279]
+            - button "保留这条生活影响记录" [ref=f1e280] [cursor=pointer]
+          - generic [ref=f1e281]: 这里只保留你的描述和问题，不判断原因、不做严重度评分，也不自动给换袋、饮食或药物建议。需要联系团队时，以院方提供的具体联系安排为准。
+        - generic [ref=f1e282]:
+          - heading "我保留的记录" [level=2] [ref=f1e283]
+          - generic [ref=f1e284]:
+            - generic [ref=f1e285]:
+              - strong [ref=f1e286]: 2026-10-17 · 排便次数或规律变化
+              - generic [ref=f1e287]: 未补充描述
+            - generic [ref=f1e288]: 本人自述
+          - button "放到病情一图秀回顾" [ref=f1e289] [cursor=pointer]
+  - status [ref=f1e290]: 已保留生活影响记录（当前演示内存）

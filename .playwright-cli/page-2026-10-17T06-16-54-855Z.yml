@@ -1,0 +1,94 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - img "小巢宝 卵巢癌助手" [ref=e4]
+      - generic [ref=e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=e6]:
+        - button "看板" [ref=e974] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e975]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=e976] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e977]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=e978] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e979]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=e980] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e981]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=e982] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e983]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=e984] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e985]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=e986] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e987]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=e988] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e989]: ☆
+          - text: 收藏与回顾
+      - generic [ref=e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=e24] [cursor=pointer]
+    - generic [ref=e25]:
+      - banner [ref=e26]:
+        - generic [ref=e27]:
+          - text: 小巢宝工作台
+          - generic [ref=e28]: / 临床
+        - generic [ref=e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=e31]: 原生会话 · 未连接
+          - button "大字" [ref=e32] [cursor=pointer]
+          - button "设置" [ref=e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e34]: ⚙
+          - button "复诊问题 0" [ref=e35] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=e36]: "0"
+      - main [ref=e37]:
+        - generic [ref=e990]:
+          - generic [ref=e991]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=e992] [cursor=pointer]
+        - generic [ref=e994]:
+          - generic [ref=e995]: 小巢宝 · PATIENT WORKBENCH
+          - heading "临床" [level=1] [ref=e996]
+          - generic [ref=e997]: 从你正在经历的事情开始：治疗讨论、身体变化、报告，或一个想问的问题。
+        - generic "二级导航" [ref=e998]:
+          - button "治疗历程" [ref=e999] [cursor=pointer]
+          - button "临床档案" [ref=e1000] [cursor=pointer]
+          - button "腹部与穿刺" [ref=e1001] [cursor=pointer]
+          - button "术后排便/造口" [ref=e1002] [cursor=pointer]
+          - button "遗传报告" [ref=e1003] [cursor=pointer]
+          - button "试验检索" [ref=e1004] [cursor=pointer]
+          - button "资料对照" [ref=e1005] [cursor=pointer]
+          - button "我的关注" [ref=e1006] [cursor=pointer]
+          - button "数据来源" [ref=e1007] [cursor=pointer]
+        - generic [ref=e1008]:
+          - heading "手术后，哪些变化影响了日常生活？" [level=2] [ref=e1009]
+          - paragraph [ref=e1010]: 可以记录排便或造口带来的困扰，也可以只查看团队给过的材料。没做过造口就不用填写造口内容。
+          - generic [ref=e1011]:
+            - generic [ref=e1012]:
+              - generic [ref=e1013]:
+                - text: 日期
+                - textbox "日期" [ref=e1014]: 2026-10-17
+              - generic [ref=e1015]:
+                - text: 我想记下
+                - combobox "我想记下" [ref=e1016]:
+                  - option "排便次数或规律变化" [selected]
+                  - option "急迫感或外出安排受影响"
+                  - option "造口渗漏或更换用品的困扰"
+                  - option "造口周围皮肤让我担心"
+                  - option "目前没有特别变化，只准备问题"
+            - generic [ref=e1017]:
+              - text: 对生活的影响（可跳过）
+              - textbox "对生活的影响（可跳过）" [ref=e1018]:
+                - /placeholder: 例如：最近不太敢出门，想问团队有哪些支持。
+            - group [ref=e1019]:
+              - generic "如果我有造口，想补充（均可跳过）" [ref=e1020]
+            - button "保留这条生活影响记录" [ref=e1021] [cursor=pointer]
+          - generic [ref=e1022]: 这里只保留你的描述和问题，不判断原因、不做严重度评分，也不自动给换袋、饮食或药物建议。需要联系团队时，以院方提供的具体联系安排为准。
+        - generic [ref=e1023]:
+          - heading "我保留的记录" [level=2] [ref=e1024]
+          - generic [ref=e1025]: 还没有记录；可以只保留一个要问团队的问题。
+          - button "放到病情一图秀回顾" [ref=e1026] [cursor=pointer]
+  - status

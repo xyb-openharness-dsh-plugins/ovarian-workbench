@@ -1,0 +1,16 @@
+{
+  "package_id": "ovarian-cancer-guidance",
+  "schema_version": "1.0.0",
+  "built_at": "2026-10-18",
+  "purpose": "Patient-facing source catalogue and scope metadata, including a verified official 2022 NHC PDF chapter/page outline for navigation. No full guideline text or treatment recommendations are bundled.",
+  "clinical_use_status": "metadata_only",
+  "default_region": "CN",
+  "source_count": 4,
+  "boundary": "This catalogue helps users identify sources and applicability limits. It does not determine diagnosis, treatment, drug indication, reimbursement, or availability. Clinical decisions belong to the treating professional team.",
+  "sources_file": "sources.json",
+  "separate_packages": {
+    "clinical_trials": "ovarian-cancer-trials-2026",
+    "note": "Trial registrations are separate from guidelines, evidence grading, recruitment status, and personal eligibility."
+  },
+  "refresh_policy": "Recheck source versions and links before each release and when a source publisher announces an update. This catalogue does not establish latest applicable recommendations; never promote metadata-only sources to recommendation content without chapter-level verification and clinical review."
+}

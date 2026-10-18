@@ -1,0 +1,100 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - img "小巢宝 卵巢癌助手" [ref=f1e4]
+      - generic [ref=f1e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=f1e6]:
+        - button "看板" [ref=f1e7] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e8]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=f1e9] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e10]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=f1e11] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e12]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=f1e13] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e14]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=f1e15] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e16]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=f1e17] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e18]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=f1e19] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e20]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=f1e21] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e22]: ☆
+          - text: 收藏与回顾
+      - generic [ref=f1e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=f1e24] [cursor=pointer]
+    - generic [ref=f1e25]:
+      - banner [ref=f1e26]:
+        - generic [ref=f1e27]:
+          - text: 小巢宝工作台
+          - generic [ref=f1e28]: / 看板
+        - generic [ref=f1e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=f1e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=f1e31]: 原生会话 · 未连接
+          - button "大字" [ref=f1e32] [cursor=pointer]
+          - button "设置" [ref=f1e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e34]: ⚙
+          - button "复诊问题 0" [ref=f1e35] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=f1e36]: "0"
+      - main [ref=f1e37]:
+        - generic [ref=f1e38]:
+          - generic [ref=f1e39]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=f1e40] [cursor=pointer]
+        - generic [ref=f1e41]:
+          - generic [ref=f1e42]: 慢慢来，我们一起理清楚
+          - heading "今天，先把一件事理清楚。" [level=1] [ref=f1e43]
+          - paragraph [ref=f1e44]: 不用一下子弄懂所有事情。把手头的资料、想问的问题，或此刻的感受交给这里。
+        - generic [ref=f1e45]:
+          - button "↗ 刚确诊，不知道怎么办 先缓一缓。从眼前的一小步开始，不必先填完整资料。 可以只看看，也可以随时暂停" [ref=f1e46] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e47]: ♡
+            - generic [ref=f1e48]: ↗
+            - heading "刚确诊，不知道怎么办" [level=2] [ref=f1e49]
+            - paragraph [ref=f1e50]: 先缓一缓。从眼前的一小步开始，不必先填完整资料。
+            - generic [ref=f1e51]: 可以只看看，也可以随时暂停
+          - button "↗ 资料很多，帮我理清楚 把检查和治疗材料放在一起。先看整理，再决定要核对哪些细节。 短近况 · 一图秀 · 复诊问题" [ref=f1e52] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e53]: ▤
+            - generic [ref=f1e54]: ↗
+            - heading "资料很多，帮我理清楚" [level=2] [ref=f1e55]
+            - paragraph [ref=f1e56]: 把检查和治疗材料放在一起。先看整理，再决定要核对哪些细节。
+            - generic [ref=f1e57]: 短近况 · 一图秀 · 复诊问题
+        - generic [ref=f1e58]:
+          - heading "这段时间，照顾好自己" [level=2] [ref=f1e59]
+          - generic [ref=f1e60]: 临床治疗 · 营养支持 · 心理支持
+        - generic [ref=f1e61]:
+          - generic [ref=f1e62]:
+            - heading "临床治疗与检查" [level=3] [ref=f1e63]
+            - paragraph [ref=f1e64]: 把治疗、检查和原始报告放回同一条时间线。
+            - button "回顾病程" [ref=f1e65] [cursor=pointer]
+          - generic [ref=f1e66]:
+            - heading "吃得怎么样" [level=3] [ref=f1e67]
+            - paragraph [ref=f1e68]: 胃口、进食困难或营养支持，不需要每一项都记录。
+            - button "打开营养支持" [ref=f1e69] [cursor=pointer]
+          - generic [ref=f1e70]:
+            - heading "此刻的感受" [level=3] [ref=f1e71]
+            - paragraph [ref=f1e72]: 担心、疲惫或不想说，都可以。私密记录由你决定是否分享。
+            - button "打开心理支持" [ref=f1e73] [cursor=pointer]
+        - generic [ref=f1e74]:
+          - heading "下次沟通，不必从头说起" [level=2] [ref=f1e75]
+          - button "准备复诊材料" [ref=f1e76] [cursor=pointer]
+        - generic [ref=f1e77]:
+          - generic [ref=f1e78]:
+            - generic [ref=f1e79]:
+              - heading "我的问题清单" [level=3] [ref=f1e80]
+              - generic [ref=f1e81]: 0 个已保留
+            - paragraph [ref=f1e82]: 保留想问的事，后续补充变化和医生的回复。
+            - button "先写下一件事" [ref=f1e83] [cursor=pointer]
+          - generic [ref=f1e84]:
+            - heading "未来安排" [level=3] [ref=f1e85]
+            - paragraph [ref=f1e86]: 没有安排也没关系，不会自动替你排检查或治疗。
+            - text: 尚未添加
+            - button "查看全程管理" [ref=f1e87] [cursor=pointer]
+  - status

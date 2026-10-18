@@ -1,0 +1,23 @@
+node_modules/
+*.tgz
+.DS_Store
+.env
+.env.*
+!.env.example
+_private/
+input/
+output/
+*.sqlite
+*.sqlite-wal
+*.sqlite-shm
+*.db
+
+# 本地密钥（永不进仓库）
+.secrets/
+_secrets/
+
+# 项目工作数据（会话记录等），不进仓库
+.workbuddy/
+
+# 构建产物目录（内容均为 *.tgz）
+dist/

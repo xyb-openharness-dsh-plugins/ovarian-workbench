@@ -1,0 +1,38 @@
+feature_id,prototype,coverage,pending,user_confirmation
+W01,docs/prototype/workbench-v3.html,首批实现:用户通过 DSH Desktop 目录选择器选择资料根；切换目录二次确认，旧文件保留；备份未实现,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+R01,docs/prototype/workbench-v3.html,首批实现:本机PDF/图片/文本导入、hash/原件存储/预览；MinerU机器转录草稿按授权保存在本地；目录切换已接通，备份未实现,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+R02,docs/prototype/workbench-v3.html,首批实现:手工录入候选、链接原件、接受/拒绝/暂缓；MinerU返回Markdown草稿；CA125/HE4/CA19-9/CEA/CA72-4及常见血液/营养目录的同行明确数值+单位可由用户逐条加入待核候选；不自动成为正式指标,明确单行“项目名+数值+支持单位”的其他指标已作为未归类候选显示原文；不支持的单位格式、其他疑点/更正历史尚未抽取；代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+R03,docs/prototype/workbench-v3.html,只读模拟部位/病理,实际渲染/生产能力均未验证,待确认
+R04,docs/prototype/workbench-v3.html,摘要预览、显式字段选择、冻结版本与5格式导出已实现；冻结后全文编辑/恢复待实现,实际渲染/生产能力均未验证,待确认
+M01,docs/prototype/workbench-v3.html,首批实现:手工观察记录、原单位/日期/方法/实验室/来源；目录定义/筛选/质量队列待实现,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+M02,docs/prototype/workbench-v3.html,有类别表/同源CA125旧图；生产级列表筛选未实现,真实浏览器渲染/E2E/临床内容/生产能力均未验证,待确认
+M03,docs/prototype/workbench-v3.html,缺项说明，无全量质量队列,实际渲染/生产能力均未验证,待确认
+O01,docs/prototype/workbench-v3.html,首批实现:用户记录指标依方法/实验室分组绘点，未知可比性不连线；筛选/治疗轨/候选分层待实现,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+O02,docs/prototype/workbench-v3.html,已实现定高独立翻面指标卡及最近5次趋势小图；需Desktop实机验收,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+O03,docs/prototype/workbench-v3.html,2026试验快照检索/筛选/详情/收藏快照已实现；新旧来源变更对照待实现,实际渲染/生产能力均未验证,待确认
+C01,docs/prototype/workbench-v3.html,首批实现:卵巢癌特定沟通话题、治疗事件/计划状态/来源；临床档案和治疗字段细化待实现,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+C02,docs/prototype/workbench-v3.html,模拟只读档案,实际渲染/生产能力均未验证,待确认
+C03,docs/prototype/workbench-v3.html,单条模拟筛选/无结果,实际渲染/生产能力均未验证,待确认
+C04,docs/prototype/workbench-v3.html,静态对照与问题保留,实际渲染/生产能力均未验证,待确认
+C05,docs/prototype/workbench-v3.html,内存关注/详情,实际渲染/生产能力均未验证,待确认
+C06,docs/prototype/workbench-v3.html,模拟来源说明,实际渲染/生产能力均未验证,待确认
+N01,docs/prototype/workbench-v3.html,首批实现:本人营养记录结构化保存（胃口/进食困难/体重/估算摄入/背景）；体重Observation回链并进入一图秀；删除来源记录时级联清理趋势点；摘要沿用用户选定记录,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+N02,docs/prototype/workbench-v3.html,字段示例弹窗,实际渲染/生产能力均未验证,待确认
+P01,docs/prototype/workbench-v3.html,首批实现:患者/照护者主体分开、私密记录本机保存/删除；显式分享合同及审计待实现,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+A01,docs/prototype/workbench-v3.html,首批实现:本机个人安排新增/完成，与临床事件分开,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+K01,docs/prototype/workbench-v3.html,首批实现:问题清单、报告原件回源、个人安排、页面入口收藏/取消；冻结复诊摘要及HTML/Markdown/PDF/DOCX/JPEG导出已实现；格式实机验收待完成,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+E01,docs/prototype/workbench-v3.html,已生成MD/HTML/PDF/DOCX/JPEG五种文件；实际打开和中文排版验收待完成,实际渲染/生产能力均未验证,待确认
+G01,docs/prototype/workbench-v3.html,完整业务工作台内有“打开 AI 对话”入口；按需嵌入 DSH 原生会话；可调宽、键盘微调、隐藏/重开；按选择生成草稿并经同意后一键原生发送或复制；有草稿/附件/提交时阻止混发,自动化覆盖 customFrame 注册、宿主原生节点嵌入、会话归属、原生 submit、分隔条键盘调整及隐藏重开；鼠标拖动/真实聊天/模型回复需目标 DSH Desktop 重启后实测；无模型回答读取、引用核验、任务持久化或结果回填,代码实现/待实机验收
+H01,docs/prototype/workbench-v3.html,二期未制作,二期共创/内容/权限,待确认
+B01,docs/prototype/workbench-v3.html,二期未制作,二期共创/内容/权限,待确认
+B02,docs/prototype/workbench-v3.html,二期未制作,二期共创/内容/权限,待确认
+F01,docs/prototype/workbench-v3.html,首批实现:无资料只读的新确诊帮助及问题草稿/建档入口；通用内容审核及完整恢复流程待实现,代码已实现但AC未执行；Desktop/窄屏/临床走查待完成,用户已批准一期开发（2026-10-17）
+R05,docs/prototype/workbench-v3.html,固定批次草稿/疑点/跳过/回源,实际渲染/生产能力均未验证,待确认
+SET01,docs/prototype/workbench-v3.html,右上齿轮全局入口；设置弹层固定标题/底部动作,目标 DSH Desktop fetch 路由按RC合同适配；MinerU共享凭据/个人Token与逐文件授权已编码；重启实机验收待完成,待确认
+SET02,docs/prototype/workbench-v3.html,患者资料目录选择/更换/旧目录保护（演示目录，无真实文件访问）,目标 DSH Desktop fetch 路由按RC合同适配；MinerU共享凭据/个人Token与逐文件授权已编码；重启实机验收待完成,待确认
+SET03,docs/prototype/workbench-v3.html,动态读取小胰宝共享凭据状态；仅本机TXT/云端模式、逐文件授权；个人Token经DSH Host credential store保存/清除,目标 DSH Desktop fetch 路由按RC合同适配；MinerU共享凭据/个人Token与逐文件授权已编码；重启实机验收待完成,待确认
+SET04,docs/prototype/workbench-v3.html,临床数据包地区/版本/核验状态；与患者目录分开,目标 DSH Desktop fetch 路由按RC合同适配；MinerU共享凭据/个人Token与逐文件授权已编码；重启实机验收待完成,待确认
+SET05,docs/prototype/workbench-v3.html,独立草稿、保存/取消/未保存更改提示与演示失败边界,目标 DSH Desktop fetch 路由按RC合同适配；MinerU共享凭据/个人Token与逐文件授权已编码；重启实机验收待完成,待确认
+R06,docs/prototype/workbench-v3.html,腹胀/穿刺自愿记录；同日期轴事件节点及一图秀摘要/回链,原型内存模拟；数值来源/视觉与用户走查待审,待确认
+N03,docs/prototype/workbench-v3.html,排便/造口生活影响表单；造口字段折叠可跳过；记录可进入一图秀事件轨,护理材料须有来源并经审核；无自动分诊/护理指引,待确认
+C07,docs/prototype/workbench-v3.html,胚系/体细胞和报告分类表单；自愿问题可加入复诊问题,不收集家属身份或输出风险概率；待用户/遗传咨询专业审核,待确认

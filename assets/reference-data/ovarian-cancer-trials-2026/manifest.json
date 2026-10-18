@@ -1,0 +1,19 @@
+{
+  "title": "卵巢癌相关临床研究登记库（2026）",
+  "retrieved_at": "2026-10-17",
+  "date_scope": "仅纳入登记/首次公示日期为2026-01-01至2026-10-17（含）的记录；既往登记年份排除。",
+  "disease_scope": "卵巢恶性肿瘤；纳入适用范围内的输卵管癌/原发性腹膜癌。排除PCOS和良性/非肿瘤卵巢疾病。",
+  "record_count": 177,
+  "data_boundary": "研究登记快照，不是治疗指南、疗效证据等级、入组资格判断或个体治疗建议。注册状态、研究状态、地区许可和中心开放状态不可互换。 Raw source_record details containing trial staff names/contact fields are deliberately excluded from the distributable snapshot; the official source URL remains available for verification.",
+  "source_coverage": "ClinicalTrials.gov query set is complete for its stated query; ChinaDrugTrials and ChiCTR are partial subsets. See source_coverage table and README.",
+  "privacy": "No investigator/contact personal names, phone numbers, email addresses or direct addresses are stored.",
+  "schema_version": "2.0.0",
+  "db_file": "ovarian_cancer_trials_2026.sqlite",
+  "sha256": "9c279e80875dbd07331fc9e9e0316571f6ed7f7855bf08b3157ad1ecb9d7a0be",
+  "registry_counts": {
+    "ClinicalTrials.gov": 149,
+    "ChinaDrugTrials": 16,
+    "ChiCTR": 12
+  },
+  "jsonl_sha256": "6ec6a0c851ddbba06c465f135441cb57a7739a515fb039437af64c524d7867b2"
+}

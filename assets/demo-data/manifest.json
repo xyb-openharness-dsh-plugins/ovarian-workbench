@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "notForClinicalUse": true,
+  "demos": [
+    {
+      "id": "newly-diagnosed",
+      "name": "初次治疗与治疗沟通",
+      "description": "手术与系统治疗记录、指标趋势、待核候选及营养/复诊准备。",
+      "file": "newly-diagnosed.json"
+    },
+    {
+      "id": "recurrent-treatment",
+      "name": "复发后治疗与支持记录",
+      "description": "复发沟通、系统治疗时间线、指标趋势、症状支持和待讨论问题。",
+      "file": "recurrent-treatment.json"
+    }
+  ]
+}

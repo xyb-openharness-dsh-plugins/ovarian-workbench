@@ -1,0 +1,108 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - img "小巢宝 卵巢癌助手" [ref=f1e4]
+      - generic [ref=f1e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=f1e6]:
+        - button "看板" [ref=f1e1772] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1773]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=f1e1774] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1775]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=f1e1776] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1777]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=f1e1778] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1779]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=f1e1780] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1781]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=f1e1782] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1783]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=f1e1784] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1785]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=f1e1786] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e1787]: ☆
+          - text: 收藏与回顾
+      - generic [ref=f1e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=f1e24] [cursor=pointer]
+    - generic [ref=f1e25]:
+      - banner [ref=f1e26]:
+        - generic [ref=f1e27]:
+          - text: 小巢宝工作台
+          - generic [ref=f1e28]: / 临床
+        - generic [ref=f1e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=f1e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=f1e31]: 原生会话 · 未连接
+          - button "大字" [ref=f1e32] [cursor=pointer]
+          - button "设置" [ref=f1e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e34]: ⚙
+          - button "复诊问题 1" [ref=f1e373] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=f1e36]: "1"
+      - main [ref=f1e37]:
+        - generic [ref=f1e1788]:
+          - generic [ref=f1e1789]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=f1e1790] [cursor=pointer]
+        - generic [ref=f1e1792]:
+          - generic [ref=f1e1793]: 小巢宝 · PATIENT WORKBENCH
+          - heading "临床" [level=1] [ref=f1e1794]
+          - generic [ref=f1e1795]: 从你正在经历的事情开始：治疗讨论、身体变化、报告，或一个想问的问题。
+        - generic "二级导航" [ref=f1e1796]:
+          - button "治疗历程" [ref=f1e1797] [cursor=pointer]
+          - button "临床档案" [ref=f1e1798] [cursor=pointer]
+          - button "腹部与穿刺" [ref=f1e1799] [cursor=pointer]
+          - button "术后排便/造口" [ref=f1e1800] [cursor=pointer]
+          - button "遗传报告" [ref=f1e1801] [cursor=pointer]
+          - button "试验检索" [ref=f1e1802] [cursor=pointer]
+          - button "资料对照" [ref=f1e1803] [cursor=pointer]
+          - button "我的关注" [ref=f1e1804] [cursor=pointer]
+          - button "数据来源" [ref=f1e1805] [cursor=pointer]
+        - generic [ref=f1e1806]:
+          - heading "最近腹部有什么变化？" [level=2] [ref=f1e1807]
+          - paragraph [ref=f1e1808]: 只记录你觉得值得带去复诊的变化。可以不量腹围，也可以只写一句话。
+          - generic [ref=f1e1809]:
+            - generic [ref=f1e1810]:
+              - generic [ref=f1e1811]:
+                - text: 日期
+                - textbox "日期" [ref=f1e1812]: 2026-10-17
+              - generic [ref=f1e1813]:
+                - text: 今天更接近
+                - combobox "今天更接近" [ref=f1e1814]:
+                  - option "腹胀或腹围感觉变化" [selected]
+                  - option "吃一点就饱 / 进食变少"
+                  - option "平卧或活动时不舒服"
+                  - option "体重有变化"
+                  - option "没有特别变化，只整理一份材料"
+            - generic [ref=f1e1815]:
+              - text: 想记下的情况（可跳过）
+              - textbox "想记下的情况（可跳过）" [ref=f1e1816]:
+                - /placeholder: 例如：最近吃一点就饱，想在复诊时提一下。
+            - generic [ref=f1e1817]:
+              - generic [ref=f1e1818]:
+                - text: 体重（可选）
+                - spinbutton "体重（可选）" [ref=f1e1819]
+              - generic [ref=f1e1820]:
+                - text: 腹围（可选）
+                - spinbutton "腹围（可选）" [ref=f1e1821]
+            - generic [ref=f1e1822]:
+              - generic [ref=f1e1823]:
+                - text: 如果记录腹围，测量位置（可选）
+                - textbox "如果记录腹围，测量位置（可选）" [ref=f1e1824]:
+                  - /placeholder: 例如肚脐水平；不确定可留空
+              - generic [ref=f1e1825]:
+                - text: 穿刺/引流材料（可选，按报告原文）
+                - textbox "穿刺/引流材料（可选，按报告原文）" [ref=f1e1826]:
+                  - /placeholder: 日期、报告记载的量或原文摘要
+            - button "保留这条身体变化" [ref=f1e1827] [cursor=pointer]
+          - generic [ref=f1e1828]: 这里记录的是本人描述和资料原文，不判断是否有腹水、病情变化或穿刺时机。体重/腹围不会自动解释为营养改善或恶化。
+        - generic [ref=f1e1829]:
+          - heading "我保留的记录" [level=2] [ref=f1e1830]
+          - generic [ref=f1e1831]: 还没有记录；空白不代表没有症状。
+          - button "放到病情一图秀回顾" [ref=f1e1832] [cursor=pointer]
+  - status

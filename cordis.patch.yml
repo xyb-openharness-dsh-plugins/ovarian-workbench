@@ -1,0 +1,5 @@
+- insert:
+    - id: ovarian-workbench-main
+      name: "@xyb-community/ovarian-workbench"
+      config:
+        root: !!js dshHomePath('ovarian-workbench')

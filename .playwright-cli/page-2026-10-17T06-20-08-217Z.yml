@@ -1,0 +1,186 @@
+- generic [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - img "小巢宝 卵巢癌助手" [ref=f1e4]
+      - generic [ref=f1e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=f1e6]:
+        - button "看板" [ref=f1e357] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e358]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=f1e359] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e360]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=f1e361] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e362]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=f1e363] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e364]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=f1e365] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e366]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=f1e367] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e368]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=f1e369] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e370]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=f1e371] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e372]: ☆
+          - text: 收藏与回顾
+      - generic [ref=f1e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=f1e24] [cursor=pointer]
+    - generic [ref=f1e25]:
+      - banner [ref=f1e26]:
+        - generic [ref=f1e27]:
+          - text: 小巢宝工作台
+          - generic [ref=f1e28]: / 临床
+        - generic [ref=f1e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=f1e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=f1e31]: 原生会话 · 未连接
+          - button "大字" [ref=f1e32] [cursor=pointer]
+          - button "设置" [ref=f1e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e34]: ⚙
+          - button "复诊问题 1" [ref=f1e373] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=f1e36]: "1"
+      - main [ref=f1e37]:
+        - generic [ref=f1e374]:
+          - generic [ref=f1e375]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=f1e376] [cursor=pointer]
+        - generic [ref=f1e378]:
+          - generic [ref=f1e379]: 小巢宝 · PATIENT WORKBENCH
+          - heading "临床" [level=1] [ref=f1e380]
+          - generic [ref=f1e381]: 从你正在经历的事情开始：治疗讨论、身体变化、报告，或一个想问的问题。
+        - generic "二级导航" [ref=f1e382]:
+          - button "治疗历程" [ref=f1e383] [cursor=pointer]
+          - button "临床档案" [ref=f1e384] [cursor=pointer]
+          - button "腹部与穿刺" [ref=f1e385] [cursor=pointer]
+          - button "术后排便/造口" [ref=f1e386] [cursor=pointer]
+          - button "遗传报告" [ref=f1e387] [cursor=pointer]
+          - button "试验检索" [ref=f1e388] [cursor=pointer]
+          - button "资料对照" [ref=f1e389] [cursor=pointer]
+          - button "我的关注" [ref=f1e390] [cursor=pointer]
+          - button "数据来源" [ref=f1e391] [cursor=pointer]
+        - generic [ref=f1e392]:
+          - generic [ref=f1e393]:
+            - heading "先按报告原样记下结果" [level=2] [ref=f1e394]
+            - paragraph [ref=f1e395]: 如果你愿意，可以记录报告类型和原文分类。看不懂或暂时不想处理，也可以先跳过。
+            - generic [ref=f1e396]:
+              - generic [ref=f1e397]:
+                - generic [ref=f1e398]:
+                  - text: 检测类型
+                  - combobox "检测类型" [ref=f1e399]:
+                    - option "还不清楚" [selected]
+                    - option "胚系（血液/唾液等样本，按报告）"
+                    - option "肿瘤组织/体细胞检测"
+                    - option "报告未说明"
+                - generic [ref=f1e400]:
+                  - text: 报告分类（照报告选择）
+                  - combobox "报告分类（照报告选择）" [ref=f1e401]:
+                    - option "尚未核对" [selected]
+                    - option "致病 / 可能致病（报告原文）"
+                    - option "意义未明（VUS）"
+                    - option "未检出 / 阴性（报告原文）"
+                    - option "未检测 / 结果未出 / 检测失败"
+              - generic [ref=f1e402]:
+                - text: 基因或报告中的原文（可选）
+                - textbox "基因或报告中的原文（可选）" [ref=f1e403]:
+                  - /placeholder: 可以只记报告名称、日期或原文；不要填写家属姓名/信息。
+              - generic [ref=f1e404]:
+                - text: 我想准备的问题（可选）
+                - textbox "我想准备的问题（可选）" [ref=f1e405]:
+                  - /placeholder: 例如：这个结果与正在讨论的治疗有什么关系？是否适合约遗传咨询？
+              - button "保留这条报告记录" [ref=f1e406] [cursor=pointer]
+            - generic [ref=f1e407]: 胚系与体细胞结果不能混为一类；VUS不等于致病结果。这个页面不计算家属风险、不推荐检测，也不会通知或共享给家人。
+          - generic [ref=f1e408]:
+            - heading "可以带去咨询的问题" [level=2] [ref=f1e409]
+            - generic [ref=f1e410]:
+              - button "请解释报告分类和还不确定的部分 ＋" [ref=f1e411] [cursor=pointer]:
+                - generic [ref=f1e412]: 请解释报告分类和还不确定的部分
+                - generic [ref=f1e413]: ＋
+              - button "如果我担心家人，可以先问什么？ ＋" [ref=f1e414] [cursor=pointer]:
+                - generic [ref=f1e415]: 如果我担心家人，可以先问什么？
+                - generic [ref=f1e416]: ＋
+              - button "咨询流程和费用怎么核实？ ＋" [ref=f1e417] [cursor=pointer]:
+                - generic [ref=f1e418]: 咨询流程和费用怎么核实？
+                - generic [ref=f1e419]: ＋
+            - generic [ref=f1e420]: 家庭相关讨论完全自愿。问题清单不会记录家属身份，也不是对亲属进行筛查/检测的建议。
+        - generic [ref=f1e421]:
+          - heading "最近保留的遗传咨询问题" [level=2] [ref=f1e422]
+          - generic [ref=f1e423]: 如果我想了解这份报告对家人可能意味着什么，应向遗传咨询人员问哪些问题？
+  - dialog [ref=f1e424]:
+    - generic [ref=f1e425]:
+      - heading "工作台设置" [level=2] [ref=f1e426]
+      - button "关闭弹窗" [active] [ref=f1e427] [cursor=pointer]: 关闭 ×
+    - generic [ref=f1e428]:
+      - generic [ref=f1e429]:
+        - heading "患者资料目录" [level=3] [ref=f1e430]
+        - paragraph [ref=f1e431]: 患者报告、病情记录和复诊材料保存在你选择的本机目录。
+        - generic [ref=f1e432]:
+          - generic [ref=f1e433]:
+            - strong [ref=f1e434]: 当前资料目录
+            - generic [ref=f1e435]: 尚未选择资料目录（原型演示）
+          - generic [ref=f1e436]: 未绑定
+        - button "选择资料目录" [ref=f1e438] [cursor=pointer]
+        - paragraph [ref=f1e439]: 更换目录不会自动搬迁或删除旧目录中的资料。正式产品需另设备份、迁移预览与校验流程。此处仅模拟选择，不访问本机文件。
+      - generic [ref=f1e440]:
+        - heading "报告解析与 MinerU" [level=3] [ref=f1e441]
+        - paragraph [ref=f1e442]: 选择扫描件/图片的处理方式。TXT、MD、CSV 等支持类型可在本机解析。
+        - generic [ref=f1e443]:
+          - generic [ref=f1e444]:
+            - radio "MinerU 云端解析（默认）社区共享API凭据状态：已配置 · 默认可用（仅显示状态）" [checked] [ref=f1e445]
+            - generic [ref=f1e446]:
+              - strong [ref=f1e447]: MinerU 云端解析（默认）
+              - text: 社区共享API凭据状态：已配置 · 默认可用（仅显示状态）
+          - generic [ref=f1e448]:
+            - radio "仅本机解析不将报告发送到外部服务；部分扫描件/图片可能无法识别。" [ref=f1e449]
+            - generic [ref=f1e450]:
+              - strong [ref=f1e451]: 仅本机解析
+              - text: 不将报告发送到外部服务；部分扫描件/图片可能无法识别。
+        - generic [ref=f1e452]:
+          - generic [ref=f1e453]:
+            - strong [ref=f1e454]: MinerU API 凭据
+            - generic [ref=f1e455]: 使用社区共享凭据；密钥不会显示或返回。
+          - generic [ref=f1e456]: 社区共享
+        - textbox "原型不收集真实密钥" [disabled] [ref=f1e457]:
+          - /placeholder: 原型不接收真实 Token；正式产品在此安全输入/替换
+        - button "模拟配置自备 Token" [ref=f1e459] [cursor=pointer]
+        - link "如何申请 MinerU Token ↗" [ref=f1e460] [cursor=pointer]:
+          - /url: https://mineru.net
+        - generic [ref=f1e462]:
+          - checkbox "我了解云端解析会将所选文件发送到 MinerU保存偏好不代替每份文件发送前的确认；患者档案、心理记录和问题不会随设置上传。" [ref=f1e463]
+          - generic [ref=f1e464]:
+            - strong [ref=f1e465]: 我了解云端解析会将所选文件发送到 MinerU
+            - text: 保存偏好不代替每份文件发送前的确认；患者档案、心理记录和问题不会随设置上传。
+        - paragraph [ref=f1e466]: 社区共享服务可能有额度、限流或可用性变化。上传失败时保留原件，可切换本地解析或稍后重试。
+      - generic [ref=f1e467]:
+        - heading "临床参考与研究数据包" [level=3] [ref=f1e468]
+        - paragraph [ref=f1e469]: 医学参考包与患者病历分开保存。来源、地区、覆盖范围和更新状态需要一起查看。
+        - generic [ref=f1e470]:
+          - generic [ref=f1e471]:
+            - strong [ref=f1e472]: 国家卫健委卵巢癌指南
+            - generic [ref=f1e473]: 范围核对资料
+            - generic [ref=f1e474]: 中国 · 2022版 · 本项目用于范围核对，不代表已核验最新治疗内容。
+          - generic [ref=f1e475]:
+            - strong [ref=f1e476]: CSCO 卵巢癌指南
+            - generic [ref=f1e477]: 全文待核验
+            - generic [ref=f1e478]: 2025版发布信息已发现；全文和具体建议尚未逐条审核。
+          - generic [ref=f1e479]:
+            - strong [ref=f1e480]: 卵巢癌临床试验登记快照
+            - generic [ref=f1e481]: 演示包 · 待接入
+            - generic [ref=f1e482]: 正式内容须显示登记来源、采集日期、覆盖范围和错误状态。
+        - generic [ref=f1e483]:
+          - generic [ref=f1e484]:
+            - strong [ref=f1e485]: 临床数据包目录
+            - generic [ref=f1e486]: 与患者资料目录分开管理；原型尚未配置
+          - button "查看目录设置" [ref=f1e487] [cursor=pointer]
+      - generic [ref=f1e488]:
+        - heading "隐私与工作台" [level=3] [ref=f1e489]
+        - paragraph [ref=f1e490]: 设置凭据与患者病历分开保存。Desktop 管理模型、模式、工具权限和快捷键；小巢宝不替代平台设置。
+        - paragraph [ref=f1e491]: 小巢宝卵巢癌工作台 · v3 交互原型 · 所有配置只保存在当前页面内存，刷新即清除。
+    - generic [ref=f1e492]:
+      - button "取消" [ref=f1e493] [cursor=pointer]
+      - button "保存设置" [ref=f1e494] [cursor=pointer]
+  - status

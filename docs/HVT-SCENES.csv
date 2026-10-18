@@ -1,0 +1,11 @@
+﻿id,scene,trigger,artifact,v,s,f,hvt,c,level,p,evidence,status
+OV-01,减灭术与残余病灶,医生提到 R0/R1,手术记录/残余病灶/术后安排,3,3,3,9,4,W,9,SCENARIOS.md:78; SCHEMA.md:22; ACCEPTANCE.md:31,open
+OV-02,腹水与腹胀,腹胀加重/吃不下/体重上升,腹水记录与穿刺引流问题,3,3,3,9,0,B,45,SPEC.md:55 仅营养语境; SCHEMA.md 无引流实体; ACCEPTANCE.md 无条目,open
+OV-03,肠梗阻,停止排气排便/腹胀痛,急症边界与联系条件,3,3,2,6,0,B,30,grep 肠梗阻=0; SCENARIOS.md:81 仅术后排便,open
+OV-04,CA125/HE4 趋势,标志物升高,趋势与"不是复发结论",3,2,3,6,5,OK,0,SCENARIOS.md:116-121; ACCEPTANCE.md:10,28,open
+OV-05,BRCA/HRD 与维持治疗,拿到 BRCA/HRD 报告,维持治疗前提与未知状态,3,3,3,9,4,W,9,SCENARIOS.md:94; SCHEMA.md:20; ACCEPTANCE.md:13,open
+OV-06,含铂化疗神经毒性,手脚麻木,记录变化与沟通,3,2,3,6,4,W,6,SCENARIOS.md:88-91; SCHEMA.md:24,open
+OV-07,复发与治疗史重建,医生提到复发/铂敏感,既往治疗重建与下一步问题,3,2,2,6,4,W,6,SCENARIOS.md:102; ACCEPTANCE.md:31,open
+OV-08,放疗情境,听到"放疗",目的与不确定性,2,2,1,4,4,W,4,SCENARIOS.md:109; SCHEMA.md:23,open
+OV-09,造口与盆底肠功能,术后带造口/排便改变,造口袋照护与排便记录,2,3,1,6,0,B,30,grep 造口=0; grep 盆底=0,open
+OV-10,遗传咨询与家系,检出胚系突变,家属风险与检测沟通,3,3,2,6,2,B,18,grep 家系=0; ACCEPTANCE.md:13,open

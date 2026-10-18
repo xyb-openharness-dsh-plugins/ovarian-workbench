@@ -1,0 +1,60 @@
+{
+  "name": "@xyb-community/ovarian-workbench",
+  "version": "0.1.48",
+  "description": "面向卵巢癌患者与照护者的本机病程资料、治疗历程、指标趋势与医患沟通工作台设计项目",
+  "private": true,
+  "type": "module",
+  "main": "./dsh/index.js",
+  "exports": {
+    ".": "./dsh/index.js",
+    "./client": "./lib/client.js",
+    "./package.json": "./package.json",
+    "./cordis.patch.yml": "./cordis.patch.yml"
+  },
+  "files": [
+    "dsh",
+    "lib",
+    "assets",
+    "cordis.patch.yml",
+    "VERSION",
+    "README.md",
+    "NOTICE.md"
+  ],
+  "scripts": {
+    "check": "node --check dsh/index.js && node --check dsh/mineru.js && node --check lib/client.js && node scripts/check-workbench-package.mjs . && node scripts/validate-trial-package.mjs .",
+    "pack:check": "npm pack --dry-run",
+    "test": "node --test"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "inject": [
+        "dsh-desktop-workbenches"
+      ]
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xyb-openharness-dsh-plugins/ovarian-workbench"
+  },
+  "peerDependencies": {
+    "@deepseek-ai/cordis": ">=4.0.1 <5",
+    "@deepseek-ai/dsh-client-connection": ">=0.1.0-rc.6 <0.2.0 || >=0.2.0-rc.2 <0.3.0-0",
+    "@deepseek-ai/dsh-host-webserver": ">=0.1.0-rc.6 <0.2.0 || >=0.2.0-rc.2 <0.3.0-0",
+    "@deepseek-ai/schemastery": ">=3.18.1 <4",
+    "@deepseek-ai/dsh-credentials": ">=0.1.0-rc.6 <0.2.0 || >=0.2.0-rc.2 <0.3.0-0"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "license": "UNLICENSED",
+  "devDependencies": {
+    "@napi-rs/canvas": "^1.0.11",
+    "jsdom": "^26.1.0",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}

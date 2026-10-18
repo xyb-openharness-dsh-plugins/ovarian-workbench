@@ -1,0 +1,83 @@
+{
+  "assets": [
+    {
+      "path": "brand/xyb-logo.png",
+      "source": "community-provided brand reference; original local path omitted",
+      "sha256": "e7bf8431f3838aac9b790ebe4893c7941f86fd60aaff6caa79dc67d9baa69a58",
+      "bytes": 124177,
+      "purpose": "community brand reference; not automatically displayed",
+      "licenseStatus": "owner permission must be confirmed before public redistribution"
+    },
+    {
+      "path": "tokens.css",
+      "source": "authored in this starter",
+      "purpose": "scoped semantic theme"
+    },
+    {
+      "path": "tokens.json",
+      "source": "authored in this starter",
+      "purpose": "design token reference"
+    },
+    {
+      "path": "icons/clover.svg",
+      "source": "simple vector shapes authored for this starter",
+      "purpose": "optional low-intensity decoration",
+      "sha256": "00af37e51e1e70c97f132a8ea695ad10befe58db27c51294096a19215fc07834",
+      "bytes": 510
+    },
+    {
+      "path": "icons/flower-5.svg",
+      "source": "simple vector shapes authored for this starter",
+      "purpose": "optional low-intensity decoration",
+      "sha256": "63d63eae832f38c5f720ceff07d45eae33311e0a61e40427ac91a0ba086b1922",
+      "bytes": 829
+    },
+    {
+      "path": "icons/flower-7.svg",
+      "source": "simple vector shapes authored for this starter",
+      "purpose": "optional low-intensity decoration",
+      "sha256": "4b555b08e674a3eaa889114dc87995a4f5d17d783ec5247ee6ed25a14dd7ca9e",
+      "bytes": 1015
+    },
+    {
+      "path": "brand/xiaochao-community-logo.png",
+      "source": "User attachment Image #2 in this design session, 2026-10-17",
+      "sha256": "435edb30c27cd817904ac2d0174a126b33020a6babeab8f78bb015d26dfa9898",
+      "bytes": 90962,
+      "purpose": "Xiaochao community identity for this local workbench design; preserve original aspect ratio",
+      "licenseStatus": "User supplied for project UI design; public redistribution scope not established"
+    },
+    {
+      "path": "demo-data/manifest.json",
+      "source": "authored synthetic demo fixture",
+      "purpose": "catalog of fabricated local UI demonstration data",
+      "sha256": "ede7ebc34a1cac10b6029671048dd90ff7cbaaee532cdba72c2ea31d04d271d1",
+      "bytes": 553,
+      "licenseStatus": "project-authored; synthetic; not for clinical use"
+    },
+    {
+      "path": "demo-data/newly-diagnosed.json",
+      "source": "authored synthetic demo fixture",
+      "purpose": "synthetic patient-workbench fixture; not for clinical use",
+      "sha256": "480dec49e041b5cc91dfaaeb9351545e352602bb1010803174b39748e1b5bec4",
+      "bytes": 32306,
+      "licenseStatus": "project-authored; synthetic; not for clinical use"
+    },
+    {
+      "path": "demo-data/recurrent-treatment.json",
+      "source": "authored synthetic demo fixture",
+      "purpose": "synthetic patient-workbench fixture; not for clinical use",
+      "sha256": "f1ceca1f4e53d64a1a219512fe6c9f45d3add6b21fcc79d082150cd2f7d87c1d",
+      "bytes": 33305,
+      "licenseStatus": "project-authored; synthetic; not for clinical use"
+    },
+    {
+      "path": "demo-data/README.md",
+      "source": "authored synthetic demo fixture",
+      "purpose": "safety and loading instructions for synthetic patient-workbench fixtures",
+      "sha256": "d71105a26c082df1b8ac25b0dc65bc0f2211b012bf4ac4d77c10be52b83a1552",
+      "bytes": 874,
+      "licenseStatus": "project-authored; synthetic; not for clinical use"
+    }
+  ]
+}

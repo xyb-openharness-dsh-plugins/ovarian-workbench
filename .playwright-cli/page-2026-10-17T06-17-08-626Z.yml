@@ -1,0 +1,113 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - complementary [ref=e3]:
+      - img "小巢宝 卵巢癌助手" [ref=e4]
+      - generic [ref=e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=e6]:
+        - button "看板" [ref=e1027] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1028]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=e1029] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1030]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=e1031] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1032]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=e1033] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1034]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=e1035] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1036]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=e1037] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1038]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=e1039] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1040]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=e1041] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e1042]: ☆
+          - text: 收藏与回顾
+      - generic [ref=e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=e24] [cursor=pointer]
+    - generic [ref=e25]:
+      - banner [ref=e26]:
+        - generic [ref=e27]:
+          - text: 小巢宝工作台
+          - generic [ref=e28]: / 临床
+        - generic [ref=e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=e31]: 原生会话 · 未连接
+          - button "大字" [ref=e32] [cursor=pointer]
+          - button "设置" [ref=e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=e34]: ⚙
+          - button "复诊问题 0" [ref=e35] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=e36]: "0"
+      - main [ref=e37]:
+        - generic [ref=e1043]:
+          - generic [ref=e1044]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=e1045] [cursor=pointer]
+        - generic [ref=e1047]:
+          - generic [ref=e1048]: 小巢宝 · PATIENT WORKBENCH
+          - heading "临床" [level=1] [ref=e1049]
+          - generic [ref=e1050]: 从你正在经历的事情开始：治疗讨论、身体变化、报告，或一个想问的问题。
+        - generic "二级导航" [ref=e1051]:
+          - button "治疗历程" [ref=e1052] [cursor=pointer]
+          - button "临床档案" [ref=e1053] [cursor=pointer]
+          - button "腹部与穿刺" [ref=e1054] [cursor=pointer]
+          - button "术后排便/造口" [ref=e1055] [cursor=pointer]
+          - button "遗传报告" [ref=e1056] [cursor=pointer]
+          - button "试验检索" [ref=e1057] [cursor=pointer]
+          - button "资料对照" [ref=e1058] [cursor=pointer]
+          - button "我的关注" [ref=e1059] [cursor=pointer]
+          - button "数据来源" [ref=e1060] [cursor=pointer]
+        - generic [ref=e1061]:
+          - generic [ref=e1062]:
+            - heading "先按报告原样记下结果" [level=2] [ref=e1063]
+            - paragraph [ref=e1064]: 如果你愿意，可以记录报告类型和原文分类。看不懂或暂时不想处理，也可以先跳过。
+            - generic [ref=e1065]:
+              - generic [ref=e1066]:
+                - generic [ref=e1067]:
+                  - text: 检测类型
+                  - combobox "检测类型" [ref=e1068]:
+                    - option "还不清楚" [selected]
+                    - option "胚系（血液/唾液等样本，按报告）"
+                    - option "肿瘤组织/体细胞检测"
+                    - option "报告未说明"
+                - generic [ref=e1069]:
+                  - text: 报告分类（照报告选择）
+                  - combobox "报告分类（照报告选择）" [ref=e1070]:
+                    - option "尚未核对" [selected]
+                    - option "致病 / 可能致病（报告原文）"
+                    - option "意义未明（VUS）"
+                    - option "未检出 / 阴性（报告原文）"
+                    - option "未检测 / 结果未出 / 检测失败"
+              - generic [ref=e1071]:
+                - text: 基因或报告中的原文（可选）
+                - textbox "基因或报告中的原文（可选）" [ref=e1072]:
+                  - /placeholder: 可以只记报告名称、日期或原文；不要填写家属姓名/信息。
+              - generic [ref=e1073]:
+                - text: 我想准备的问题（可选）
+                - textbox "我想准备的问题（可选）" [ref=e1074]:
+                  - /placeholder: 例如：这个结果与正在讨论的治疗有什么关系？是否适合约遗传咨询？
+              - button "保留这条报告记录" [ref=e1075] [cursor=pointer]
+            - generic [ref=e1076]: 胚系与体细胞结果不能混为一类；VUS不等于致病结果。这个页面不计算家属风险、不推荐检测，也不会通知或共享给家人。
+          - generic [ref=e1077]:
+            - heading "可以带去咨询的问题" [level=2] [ref=e1078]
+            - generic [ref=e1079]:
+              - button "请解释报告分类和还不确定的部分 ＋" [ref=e1080] [cursor=pointer]:
+                - generic [ref=e1081]: 请解释报告分类和还不确定的部分
+                - generic [ref=e1082]: ＋
+              - button "如果我担心家人，可以先问什么？ ＋" [ref=e1083] [cursor=pointer]:
+                - generic [ref=e1084]: 如果我担心家人，可以先问什么？
+                - generic [ref=e1085]: ＋
+              - button "咨询流程和费用怎么核实？ ＋" [ref=e1086] [cursor=pointer]:
+                - generic [ref=e1087]: 咨询流程和费用怎么核实？
+                - generic [ref=e1088]: ＋
+            - generic [ref=e1089]: 家庭相关讨论完全自愿。问题清单不会记录家属身份，也不是对亲属进行筛查/检测的建议。
+        - generic [ref=e1090]:
+          - heading "最近保留的遗传咨询问题" [level=2] [ref=e1091]
+          - generic [ref=e1092]: 还没有问题；也可以先不讨论。
+  - status

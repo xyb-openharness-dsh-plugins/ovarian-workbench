@@ -1,0 +1,18 @@
+{
+  "packageName": "@xyb-community/ovarian-workbench",
+  "title": "卵巢癌患者工作台",
+  "repository": "https://github.com/xyb-openharness-dsh-plugins/ovarian-workbench",
+  "description": "面向卵巢癌患者与照护者的本机病程资料、治疗历程、指标趋势与医患沟通工作台设计项目",
+  "slug": "ovarian-workbench",
+  "layoutMode": "business-first",
+  "businessWidth": 0.65,
+  "targetUsers": "卵巢、输卵管及原发性腹膜上皮性癌患者与照护者；重点覆盖初诊、围手术/化疗、维持治疗及复发阶段",
+  "scenario": "患者整理病理、手术、影像、实验室和分子检测材料，追踪治疗与不良反应，准备复诊问题并回顾医生确认后的记录",
+  "coreFlow": [
+    "选择本地患者资料目录并导入或登记检查/治疗材料",
+    "核对病理分型、分期、CA125等指标、BRCA/HRD结果和治疗事件候选记录",
+    "查看时间轴与趋势，标记症状/副作用和待办，生成复诊摘要与问题清单",
+    "把明确任务和来源交给 Desktop 原生 Agent 会话，并归档会话结果供回顾"
+  ],
+  "completion": "患者确认的资料和治疗时间轴、可追溯的指标趋势、症状记录与复诊问题摘要均保存在明确选择的本机资料目录中"
+}

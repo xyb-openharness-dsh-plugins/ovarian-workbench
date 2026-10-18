@@ -1,0 +1,120 @@
+- generic [active] [ref=f2e1]:
+  - generic [ref=f2e2]:
+    - complementary [ref=f2e3]:
+      - img "小巢宝 卵巢癌助手" [ref=f2e4]
+      - generic [ref=f2e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=f2e6]:
+        - button "看板" [ref=f2e88] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e89]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=f2e90] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e91]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=f2e92] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e93]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=f2e94] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e95]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=f2e96] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e97]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=f2e98] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e99]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=f2e100] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e101]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=f2e102] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f2e103]: ☆
+          - text: 收藏与回顾
+      - generic [ref=f2e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=f2e24] [cursor=pointer]
+    - generic [ref=f2e25]:
+      - banner [ref=f2e26]:
+        - generic [ref=f2e27]:
+          - text: 小巢宝工作台
+          - generic [ref=f2e28]: / 临床
+        - generic [ref=f2e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=f2e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=f2e31]: 原生会话 · 未连接
+          - button "大字" [ref=f2e32] [cursor=pointer]
+          - button "设置" [ref=f2e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f2e34]: ⚙
+          - button "复诊问题 0" [ref=f2e35] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=f2e36]: "0"
+      - main [ref=f2e37]:
+        - generic [ref=f2e104]:
+          - generic [ref=f2e105]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=f2e106] [cursor=pointer]
+        - generic [ref=f2e108]:
+          - generic [ref=f2e109]: 小巢宝 · PATIENT WORKBENCH
+          - heading "临床" [level=1] [ref=f2e110]
+          - generic [ref=f2e111]: 从你正在经历的事情开始：治疗讨论、身体变化、报告，或一个想问的问题。
+        - generic "二级导航" [ref=f2e112]:
+          - button "治疗历程" [ref=f2e113] [cursor=pointer]
+          - button "临床档案" [ref=f2e114] [cursor=pointer]
+          - button "腹部与穿刺" [ref=f2e115] [cursor=pointer]
+          - button "术后排便/造口" [ref=f2e116] [cursor=pointer]
+          - button "遗传报告" [ref=f2e117] [cursor=pointer]
+          - button "试验检索" [ref=f2e118] [cursor=pointer]
+          - button "资料对照" [ref=f2e119] [cursor=pointer]
+          - button "我的关注" [ref=f2e120] [cursor=pointer]
+          - button "数据来源" [ref=f2e121] [cursor=pointer]
+        - generic [ref=f2e122]:
+          - heading "计划与实际，分开记" [level=2] [ref=f2e123]
+          - generic [ref=f2e124]:
+            - generic [ref=f2e125]:
+              - generic [ref=f2e126]: 202609-03
+              - generic [ref=f2e128]:
+                - generic [ref=f2e129]:
+                  - strong [ref=f2e130]: 已记录的治疗事件
+                  - generic [ref=f2e131]: 已接受转录
+                - paragraph [ref=f2e132]: 演示方案；无具体剂量，不代表治疗建议
+                - button "查看事件与来源" [ref=f2e133] [cursor=pointer]
+            - generic [ref=f2e134]:
+              - generic [ref=f2e135]: 202609-24
+              - generic [ref=f2e137]:
+                - generic [ref=f2e138]:
+                  - strong [ref=f2e139]: 已记录的治疗事件
+                  - generic [ref=f2e140]: 已接受转录
+                - paragraph [ref=f2e141]: 演示方案；可与同时间窗检测对照
+                - button "查看事件与来源" [ref=f2e142] [cursor=pointer]
+            - generic [ref=f2e143]:
+              - generic [ref=f2e144]: 202610-15
+              - generic [ref=f2e146]:
+                - generic [ref=f2e147]:
+                  - strong [ref=f2e148]: 治疗计划 · 实际未提供
+                  - generic [ref=f2e149]: 计划
+                - paragraph [ref=f2e150]: 不能因预约已完成就写成已给药
+                - button "查看事件与来源" [ref=f2e151] [cursor=pointer]
+          - button "看看同时间窗指标" [ref=f2e152] [cursor=pointer]
+        - generic [ref=f2e153]:
+          - generic [ref=f2e155]:
+            - heading "卵巢癌治疗话题" [level=2] [ref=f2e156]
+            - paragraph [ref=f2e157]: 从团队已经提出的话题开始。只整理资料和问题，不替团队选择治疗。
+          - generic [ref=f2e158]:
+            - article [ref=f2e159]:
+              - heading "手术评估与手术后报告" [level=3] [ref=f2e160]
+              - paragraph [ref=f2e161]: 初次减瘤手术、先治疗后手术、手术记录与病理结果。
+              - button "整理我想问的事" [ref=f2e162] [cursor=pointer]
+            - article [ref=f2e163]:
+              - heading "化疗周期" [level=3] [ref=f2e164]
+              - paragraph [ref=f2e165]: 计划/实际周期、检查材料和身体不适分开回顾。
+              - button "整理我想问的事" [ref=f2e166] [cursor=pointer]
+            - article [ref=f2e167]:
+              - heading "维持/靶向治疗" [level=3] [ref=f2e168]
+              - paragraph [ref=f2e169]: 查看已有BRCA/HRD报告和医生提出的理由，准备监测/副作用问题。
+              - button "整理我想问的事" [ref=f2e170] [cursor=pointer]
+            - article [ref=f2e171]:
+              - heading "复发后讨论" [level=3] [ref=f2e172]
+              - paragraph [ref=f2e173]: 重建既往治疗史，准备询问再次手术、系统治疗或临床研究的问题。
+              - button "整理我想问的事" [ref=f2e174] [cursor=pointer]
+            - article [ref=f2e175]:
+              - heading "放疗被提及时" [level=3] [ref=f2e176]
+              - paragraph [ref=f2e177]: 查看医生记录的特定目的和照射计划；这是情境化话题，不是默认步骤。
+              - button "整理我想问的事" [ref=f2e178] [cursor=pointer]
+          - generic [ref=f2e179]: 演示资料不含真实治疗建议。方案选择、剂量、手术可行性和放疗适用性均由专业团队确定。
+  - status

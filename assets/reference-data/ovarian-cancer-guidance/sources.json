@@ -1,0 +1,109 @@
+[
+  {
+    "id": "nhc-ovarian-2022",
+    "title": "卵巢癌诊疗指南（2022年版）",
+    "publisher": "国家卫生健康委",
+    "region": "CN",
+    "source_type": "national_guideline",
+    "publication_date": "2022",
+    "last_content_verified": "2026-10-18",
+    "verification_status": "official_2022_guideline_scope_verified_superseded_by_newer_professional_guidance",
+    "content_included": "metadata_only",
+    "applicability_note": "文件说明输卵管癌和原发性腹膜癌诊治原则可参照卵巢上皮性癌指南。本工作台一期聚焦上皮性相关范围；不将生殖细胞、性索间质、交界性肿瘤或转移瘤套用同一内容。",
+    "limitations": "较早版本；本清单不据此提供具体药物推荐、推荐等级或当前适应证。",
+    "url": "https://www.nhc.gov.cn/yzygj/c100068/202204/0c1f7d3aca0545abbeb02030ce255930/files/1732863054558_17204.pdf",
+    "documentOutline": [
+      {
+        "title": "概述",
+        "page": 1
+      },
+      {
+        "title": "诊断技术和应用",
+        "page": 1
+      },
+      {
+        "title": "鉴别诊断",
+        "page": 10
+      },
+      {
+        "title": "病理分类和手术病理分期",
+        "page": 11
+      },
+      {
+        "title": "治疗：手术治疗",
+        "page": 20
+      },
+      {
+        "title": "治疗：化疗",
+        "page": 25
+      },
+      {
+        "title": "治疗：靶向治疗",
+        "page": 30
+      },
+      {
+        "title": "治疗：免疫治疗、放疗",
+        "page": 32
+      },
+      {
+        "title": "治疗：激素治疗、中医中药治疗",
+        "page": 33
+      },
+      {
+        "title": "预后",
+        "page": 33
+      },
+      {
+        "title": "随访",
+        "page": 34
+      }
+    ]
+  },
+  {
+    "id": "csco-ovarian-2026",
+    "title": "2026版CSCO妇科肿瘤指南（含卵巢癌诊疗指南）",
+    "publisher": "中国临床肿瘤学会（CSCO）",
+    "region": "CN",
+    "source_type": "professional_guideline",
+    "publication_date": null,
+    "last_content_verified": "2026-10-18",
+    "verification_status": "official_2026_distribution_verified_full_text_and_recommendations_unverified",
+    "content_included": "metadata_only",
+    "applicability_note": "CSCO官方2026-03-12会议报道确认现场发放的2026版妇科肿瘤指南包含卵巢癌诊疗指南；2026-07-25报道记录针对《CSCO卵巢癌诊疗指南》的专家解读活动。两篇均非指南正文。",
+    "limitations": "仅核实官方活动报道中的指南发放与解读信息，不代表指南正文已公开可得、完整核验或推荐内容已审阅。本项目未取得可逐条核验的合法指南正文，不得据此展示具体药物方案、适应证、推荐等级或个体化治疗建议；需由主管妇科肿瘤团队对照当前适用正文核实。",
+    "url": "https://www.csco.org.cn/cn/ncontent.aspx?oid=9268",
+    "additional_metadata_url": "https://www.csco.org.cn/cn/ncontent.aspx?oid=9339",
+    "official_announcement_date": "2026-03-12"
+  },
+  {
+    "id": "nci-pdq-professional-2025",
+    "title": "Ovarian Epithelial, Fallopian Tube, and Primary Peritoneal Cancer Treatment (PDQ®) – Health Professional Version",
+    "publisher": "National Cancer Institute (NCI)",
+    "region": "US",
+    "source_type": "evidence_based_summary_not_china_guideline",
+    "publication_date": null,
+    "last_updated": "2025-05-14",
+    "last_content_verified": "2026-10-18",
+    "verification_status": "scope_and_update_date_verified",
+    "content_included": "metadata_only",
+    "applicability_note": "专业版覆盖卵巢上皮性、输卵管及原发性腹膜癌，作为国际背景和术语参考。",
+    "limitations": "不是中国指南；不能单独确定中国适应证、可及性或患者个体治疗选择。",
+    "url": "https://www.cancer.gov/types/ovarian/hp/ovarian-epithelial-treatment-pdq"
+  },
+  {
+    "id": "nci-pdq-patient-2024",
+    "title": "Ovarian Epithelial, Fallopian Tube, and Primary Peritoneal Cancer Treatment (PDQ®) – Patient Version",
+    "publisher": "National Cancer Institute (NCI)",
+    "region": "US",
+    "source_type": "patient_information_not_china_guideline",
+    "publication_date": null,
+    "last_updated": "2024-11-22",
+    "last_content_verified": "2026-10-18",
+    "verification_status": "scope_and_update_date_verified",
+    "content_included": "metadata_only",
+    "applicability_note": "面向患者、家属与照护者的英文资料；覆盖卵巢上皮性癌、输卵管癌及原发性腹膜癌。页面注明该资料用于帮助理解，不提供正式医疗决策指南。",
+    "limitations": "美国患者教育资料，不构成中国治疗建议；本地只保存来源链接和自写摘要，不复制全文。",
+    "url": "https://www.cancer.gov/types/ovarian/patient/ovarian-epithelial-treatment-pdq",
+    "display_title": "NCI患者资料：卵巢上皮性癌、输卵管癌及原发性腹膜癌治疗（英文）"
+  }
+]

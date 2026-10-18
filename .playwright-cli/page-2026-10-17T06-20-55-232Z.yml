@@ -1,0 +1,301 @@
+- generic [active] [ref=f1e1]:
+  - generic [ref=f1e2]:
+    - complementary [ref=f1e3]:
+      - img "小巢宝 卵巢癌助手" [ref=f1e4]
+      - generic [ref=f1e5]: 你的资料，你的节奏
+      - navigation "工作台导航" [ref=f1e6]:
+        - button "看板" [ref=f1e500] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e501]: ⌂
+          - text: 看板
+        - button "病情整理" [ref=f1e502] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e503]: ▤
+          - text: 病情整理
+        - button "病情一图秀" [ref=f1e504] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e505]: ⌁
+          - text: 病情一图秀
+        - button "临床" [ref=f1e506] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e507]: ⊕
+          - text: 临床
+        - button "营养支持" [ref=f1e508] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e509]: ♧
+          - text: 营养支持
+        - button "心理支持" [ref=f1e510] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e511]: ♡
+          - text: 心理支持
+        - button "全程管理" [ref=f1e512] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e513]: ▦
+          - text: 全程管理
+        - button "收藏与回顾" [ref=f1e514] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f1e515]: ☆
+          - text: 收藏与回顾
+      - generic [ref=f1e23]:
+        - text: 设计原型 v3所有病例与数值均为模拟
+        - button "重置演示" [ref=f1e24] [cursor=pointer]
+    - generic [ref=f1e25]:
+      - banner [ref=f1e26]:
+        - generic [ref=f1e27]:
+          - text: 小巢宝工作台
+          - generic [ref=f1e28]: / 病情一图秀
+        - generic [ref=f1e29]:
+          - button "资料目录 · 原型未绑定，打开设置" [ref=f1e30] [cursor=pointer]: 资料目录 · 原型未绑定
+          - generic [ref=f1e31]: 原生会话 · 未连接
+          - button "大字" [ref=f1e32] [cursor=pointer]
+          - button "设置" [ref=f1e33] [cursor=pointer]:
+            - generic [aria-hidden] [ref=f1e34]: ⚙
+          - button "复诊问题 1" [ref=f1e373] [cursor=pointer]:
+            - text: 复诊问题
+            - generic [ref=f1e36]: "1"
+      - main [ref=f1e37]:
+        - generic [ref=f1e516]:
+          - generic [ref=f1e517]: 交互设计稿 · 模拟资料 · 不连接医疗或 AI 服务
+          - button "癌种与指南范围 ↗" [ref=f1e518] [cursor=pointer]
+        - generic [ref=f1e519]:
+          - generic [ref=f1e520]:
+            - generic [ref=f1e521]: 小巢宝 · PATIENT WORKBENCH
+            - heading "病情一图秀" [level=1] [ref=f1e522]
+            - generic [ref=f1e523]: 将治疗、手术、检查和多项指标放回同一时间窗。所有内容是虚构演示。
+          - button "收藏此页面入口" [ref=f1e525] [cursor=pointer]
+        - generic [ref=f1e526]:
+          - generic [ref=f1e527]:
+            - generic [ref=f1e528]:
+              - heading "病程时间轴" [level=2] [ref=f1e529]
+              - paragraph [ref=f1e530]: 指标各自刻度、共用日期轴；曲线只连接已记录的数值。
+            - generic [ref=f1e531]: 全为虚构演示数据
+          - generic [ref=f1e532]:
+            - complementary [ref=f1e533]:
+              - strong [ref=f1e534]: 选择指标（最多3项）
+              - generic [ref=f1e535]:
+                - generic [ref=f1e536]:
+                  - checkbox "CA125 肿瘤标志物" [checked] [ref=f1e537]
+                  - generic [ref=f1e538]: CA125
+                  - generic [ref=f1e539]: 肿瘤标志物
+                - generic [ref=f1e540]:
+                  - checkbox "HE4 肿瘤标志物" [disabled] [ref=f1e541]
+                  - generic [ref=f1e542]: HE4
+                  - generic [ref=f1e543]: 肿瘤标志物
+                - generic [ref=f1e544]:
+                  - checkbox "中性粒细胞绝对值 血常规" [checked] [ref=f1e545]
+                  - generic [ref=f1e546]: 中性粒细胞绝对值
+                  - generic [ref=f1e547]: 血常规
+                - generic [ref=f1e548]:
+                  - checkbox "血红蛋白 血常规" [disabled] [ref=f1e549]
+                  - generic [ref=f1e550]: 血红蛋白
+                  - generic [ref=f1e551]: 血常规
+                - generic [ref=f1e552]:
+                  - checkbox "血小板 血常规" [disabled] [ref=f1e553]
+                  - generic [ref=f1e554]: 血小板
+                  - generic [ref=f1e555]: 血常规
+                - generic [ref=f1e556]:
+                  - checkbox "白蛋白 肝肾与营养相关" [checked] [ref=f1e557]
+                  - generic [ref=f1e558]: 白蛋白
+                  - generic [ref=f1e559]: 肝肾与营养相关
+                - generic [ref=f1e560]:
+                  - checkbox "肌酐 肝肾与营养相关" [disabled] [ref=f1e561]
+                  - generic [ref=f1e562]: 肌酐
+                  - generic [ref=f1e563]: 肝肾与营养相关
+              - generic [ref=f1e564]:
+                - text: 时间范围
+                - combobox "时间范围" [ref=f1e565]:
+                  - option "近3个月"
+                  - option "近6个月"
+                  - option "近12个月"
+                  - option "全部记录" [selected]
+              - generic [ref=f1e566]:
+                - text: 缩放 · 100%
+                - slider "缩放 · 100%" [ref=f1e567]: "100"
+              - generic [ref=f1e568]:
+                - checkbox "显示手术/治疗/检查节点" [checked] [ref=f1e569]
+                - text: 显示手术/治疗/检查节点
+              - generic [ref=f1e570]:
+                - checkbox "另层预览待核候选" [ref=f1e571]
+                - text: 另层预览待核候选
+            - generic [ref=f1e572]:
+              - img "同一日期轴上的卵巢癌相关模拟指标分面与治疗事件；各指标使用独立刻度" [ref=f1e573]:
+                - generic [ref=f1e574]: CA125 · U/mL
+                - generic [ref=f1e575]: "123"
+                - generic [ref=f1e576]: "77.0"
+                - button "CA125 88 U/mL，2025-10-14，查看模拟记录来源" [ref=f1e578] [cursor=pointer]
+                - button "CA125 104 U/mL，2026-02-14，查看模拟记录来源" [ref=f1e579] [cursor=pointer]
+                - button "CA125 92 U/mL，2026-06-14，查看模拟记录来源" [ref=f1e580] [cursor=pointer]
+                - button "CA125 116 U/mL，2026-09-02，查看模拟记录来源" [ref=f1e581] [cursor=pointer]
+                - button "CA125 84 U/mL，2026-09-23，查看模拟记录来源" [ref=f1e582] [cursor=pointer]
+                - generic [ref=f1e583]: 中性粒细胞绝对值 · ×10⁹/L
+                - generic [ref=f1e584]: "3.70"
+                - generic [ref=f1e585]: "0.900"
+                - button "中性粒细胞绝对值 2.7 ×10⁹/L，2025-10-14，查看模拟记录来源" [ref=f1e587] [cursor=pointer]
+                - button "中性粒细胞绝对值 2.1 ×10⁹/L，2026-02-14，查看模拟记录来源" [ref=f1e588] [cursor=pointer]
+                - button "中性粒细胞绝对值 2.5 ×10⁹/L，2026-06-14，查看模拟记录来源" [ref=f1e589] [cursor=pointer]
+                - button "中性粒细胞绝对值 2.4 ×10⁹/L，2026-09-02，查看模拟记录来源" [ref=f1e590] [cursor=pointer]
+                - button "中性粒细胞绝对值 1.9 ×10⁹/L，2026-09-23，查看模拟记录来源" [ref=f1e591] [cursor=pointer]
+                - button "中性粒细胞绝对值 2.2 ×10⁹/L，2026-10-14，查看模拟记录来源" [ref=f1e592] [cursor=pointer]
+                - generic [ref=f1e593]: 白蛋白 · g/L
+                - generic [ref=f1e594]: "42.4"
+                - generic [ref=f1e595]: "32.6"
+                - button "白蛋白 40 g/L，2025-10-14，查看模拟记录来源" [ref=f1e597] [cursor=pointer]
+                - button "白蛋白 37 g/L，2026-02-14，查看模拟记录来源" [ref=f1e598] [cursor=pointer]
+                - button "白蛋白 39 g/L，2026-06-14，查看模拟记录来源" [ref=f1e599] [cursor=pointer]
+                - button "白蛋白 38 g/L，2026-09-02，查看模拟记录来源" [ref=f1e600] [cursor=pointer]
+                - button "白蛋白 35 g/L，2026-09-23，查看模拟记录来源" [ref=f1e601] [cursor=pointer]
+                - button "白蛋白 36 g/L，2026-10-14，查看模拟记录来源" [ref=f1e602] [cursor=pointer]
+                - generic [ref=f1e603]: 10/14
+                - generic [ref=f1e604]: 02/12
+                - generic [ref=f1e605]: 06/13
+                - generic [ref=f1e606]: 10/15
+              - generic [ref=f1e607]: 不同指标分开刻度，图形不表示彼此可比较或治疗因果。虚构数值不代表临床范围或建议。
+          - heading "同一时间范围内的手术、治疗与报告" [level=3] [ref=f1e608]
+          - generic [ref=f1e609]:
+            - button "08-20 手术记录（模拟） 已记录" [ref=f1e610] [cursor=pointer]:
+              - time [ref=f1e611]: 08-20
+              - generic [ref=f1e612]: 手术记录（模拟）
+              - generic [ref=f1e613]: 已记录
+            - button "08-28 术后病理报告（模拟） 资料事件" [ref=f1e614] [cursor=pointer]:
+              - time [ref=f1e615]: 08-28
+              - generic [ref=f1e616]: 术后病理报告（模拟）
+              - generic [ref=f1e617]: 资料事件
+            - button "09-03 治疗周期记录（模拟） 实际记录" [ref=f1e618] [cursor=pointer]:
+              - time [ref=f1e619]: 09-03
+              - generic [ref=f1e620]: 治疗周期记录（模拟）
+              - generic [ref=f1e621]: 实际记录
+            - button "09-24 治疗周期记录（模拟） 实际记录" [ref=f1e622] [cursor=pointer]:
+              - time [ref=f1e623]: 09-24
+              - generic [ref=f1e624]: 治疗周期记录（模拟）
+              - generic [ref=f1e625]: 实际记录
+            - button "10-01 维持/靶向治疗沟通（模拟） 讨论记录，不代表用药" [ref=f1e626] [cursor=pointer]:
+              - time [ref=f1e627]: 10-01
+              - generic [ref=f1e628]: 维持/靶向治疗沟通（模拟）
+              - generic [ref=f1e629]: 讨论记录，不代表用药
+            - button "10-15 治疗安排（模拟） 计划，未证实实施" [ref=f1e630] [cursor=pointer]:
+              - time [ref=f1e631]: 10-15
+              - generic [ref=f1e632]: 治疗安排（模拟）
+              - generic [ref=f1e633]: 计划，未证实实施
+        - generic [ref=f1e634]:
+          - heading "我选择记录的身体变化" [level=2] [ref=f1e635]
+          - paragraph [ref=f1e636]: 这里只回顾本人自述，不推断原因或病情。点回记录页可继续整理。
+          - generic [ref=f1e637]:
+            - generic [ref=f1e638]:
+              - strong [ref=f1e639]: 2026-10-17 · 术后生活影响
+              - generic [ref=f1e640]: 未填写内容
+            - generic [ref=f1e641]: 本人自述
+          - button "回看腹部与穿刺记录" [ref=f1e642] [cursor=pointer]
+          - button "回看术后生活记录" [ref=f1e643] [cursor=pointer]
+        - generic [ref=f1e644]:
+          - generic [ref=f1e645]:
+            - generic [ref=f1e646]:
+              - heading "指标趋势卡" [level=2] [ref=f1e647]
+              - paragraph [ref=f1e648]: 按卵巢癌患者常见报告类别浏览示例；每张卡独立翻转，值均为虚构演示数据。
+            - button "查看指标列表" [ref=f1e649] [cursor=pointer]
+          - generic [ref=f1e650]:
+            - generic [ref=f1e651]:
+              - heading "肿瘤标志物" [level=3] [ref=f1e652]
+              - generic [ref=f1e653]: 2项演示指标
+            - generic [ref=f1e654]:
+              - button "CA125，84 U/mL，点击翻转查看最近记录" [ref=f1e655] [cursor=pointer]:
+                - generic [ref=f1e656]:
+                  - generic [ref=f1e657]:
+                    - generic [ref=f1e658]: CA125
+                    - strong [ref=f1e659]: 84 U/mL
+                    - generic [ref=f1e660]: 最近记录 · 2026-09-23
+                    - generic [ref=f1e661]: 点击卡片翻转查看最近五次
+                  - generic [ref=f1e662]:
+                    - generic [ref=f1e663]: CA125 · 最近5次
+                    - img "CA125最近5条模拟记录趋势" [ref=f1e664]
+                    - generic [ref=f1e671]:
+                      - generic [ref=f1e672]: 10-14
+                      - generic [ref=f1e673]: 09-23
+                    - generic [ref=f1e674]: 只回顾记录，不作病情判断 · 再次点击翻回
+              - button "HE4，139 pmol/L，点击翻转查看最近记录" [ref=f1e675] [cursor=pointer]:
+                - generic [ref=f1e676]:
+                  - generic [ref=f1e677]:
+                    - generic [ref=f1e678]: HE4
+                    - strong [ref=f1e679]: 139 pmol/L
+                    - generic [ref=f1e680]: 最近记录 · 2026-10-14
+                    - generic [ref=f1e681]: 点击卡片翻转查看最近五次
+                  - generic [ref=f1e682]:
+                    - generic [ref=f1e683]: HE4 · 最近5次
+                    - img "HE4最近5条模拟记录趋势" [ref=f1e684]
+                    - generic [ref=f1e691]:
+                      - generic [ref=f1e692]: 02-14
+                      - generic [ref=f1e693]: 10-14
+                    - generic [ref=f1e694]: 只回顾记录，不作病情判断 · 再次点击翻回
+          - generic [ref=f1e695]:
+            - generic [ref=f1e696]:
+              - heading "血常规" [level=3] [ref=f1e697]
+              - generic [ref=f1e698]: 3项演示指标
+            - generic [ref=f1e699]:
+              - button "中性粒细胞绝对值，2.2 ×10⁹/L，点击翻转查看最近记录" [ref=f1e700] [cursor=pointer]:
+                - generic [ref=f1e701]:
+                  - generic [ref=f1e702]:
+                    - generic [ref=f1e703]: 中性粒细胞绝对值
+                    - strong [ref=f1e704]: 2.2 ×10⁹/L
+                    - generic [ref=f1e705]: 最近记录 · 2026-10-14
+                    - generic [ref=f1e706]: 点击卡片翻转查看最近五次
+                  - generic [ref=f1e707]:
+                    - generic [ref=f1e708]: 中性粒细胞绝对值 · 最近5次
+                    - img "中性粒细胞绝对值最近5条模拟记录趋势" [ref=f1e709]
+                    - generic [ref=f1e716]:
+                      - generic [ref=f1e717]: 02-14
+                      - generic [ref=f1e718]: 10-14
+                    - generic [ref=f1e719]: 只回顾记录，不作病情判断 · 再次点击翻回
+              - button "血红蛋白，113 g/L，点击翻转查看最近记录" [ref=f1e720] [cursor=pointer]:
+                - generic [ref=f1e721]:
+                  - generic [ref=f1e722]:
+                    - generic [ref=f1e723]: 血红蛋白
+                    - strong [ref=f1e724]: 113 g/L
+                    - generic [ref=f1e725]: 最近记录 · 2026-10-14
+                    - generic [ref=f1e726]: 点击卡片翻转查看最近五次
+                  - generic [ref=f1e727]:
+                    - generic [ref=f1e728]: 血红蛋白 · 最近5次
+                    - img "血红蛋白最近5条模拟记录趋势" [ref=f1e729]
+                    - generic [ref=f1e736]:
+                      - generic [ref=f1e737]: 02-14
+                      - generic [ref=f1e738]: 10-14
+                    - generic [ref=f1e739]: 只回顾记录，不作病情判断 · 再次点击翻回
+              - button "血小板，193 ×10⁹/L，点击翻转查看最近记录" [ref=f1e740] [cursor=pointer]:
+                - generic [ref=f1e741]:
+                  - generic [ref=f1e742]:
+                    - generic [ref=f1e743]: 血小板
+                    - strong [ref=f1e744]: 193 ×10⁹/L
+                    - generic [ref=f1e745]: 最近记录 · 2026-10-14
+                    - generic [ref=f1e746]: 点击卡片翻转查看最近五次
+                  - generic [ref=f1e747]:
+                    - generic [ref=f1e748]: 血小板 · 最近5次
+                    - img "血小板最近5条模拟记录趋势" [ref=f1e749]
+                    - generic [ref=f1e756]:
+                      - generic [ref=f1e757]: 02-14
+                      - generic [ref=f1e758]: 10-14
+                    - generic [ref=f1e759]: 只回顾记录，不作病情判断 · 再次点击翻回
+          - generic [ref=f1e760]:
+            - generic [ref=f1e761]:
+              - heading "肝肾与营养相关" [level=3] [ref=f1e762]
+              - generic [ref=f1e763]: 2项演示指标
+            - generic [ref=f1e764]:
+              - button "白蛋白，36 g/L，点击翻转查看最近记录" [ref=f1e765] [cursor=pointer]:
+                - generic [ref=f1e766]:
+                  - generic [ref=f1e767]:
+                    - generic [ref=f1e768]: 白蛋白
+                    - strong [ref=f1e769]: 36 g/L
+                    - generic [ref=f1e770]: 最近记录 · 2026-10-14
+                    - generic [ref=f1e771]: 点击卡片翻转查看最近五次
+                  - generic [ref=f1e772]:
+                    - generic [ref=f1e773]: 白蛋白 · 最近5次
+                    - img "白蛋白最近5条模拟记录趋势" [ref=f1e774]
+                    - generic [ref=f1e781]:
+                      - generic [ref=f1e782]: 02-14
+                      - generic [ref=f1e783]: 10-14
+                    - generic [ref=f1e784]: 只回顾记录，不作病情判断 · 再次点击翻回
+              - button "肌酐，63 μmol/L，点击翻转查看最近记录" [ref=f1e785] [cursor=pointer]:
+                - generic [ref=f1e786]:
+                  - generic [ref=f1e787]:
+                    - generic [ref=f1e788]: 肌酐
+                    - strong [ref=f1e789]: 63 μmol/L
+                    - generic [ref=f1e790]: 最近记录 · 2026-10-14
+                    - generic [ref=f1e791]: 点击卡片翻转查看最近五次
+                  - generic [ref=f1e792]:
+                    - generic [ref=f1e793]: 肌酐 · 最近5次
+                    - img "肌酐最近5条模拟记录趋势" [ref=f1e794]
+                    - generic [ref=f1e801]:
+                      - generic [ref=f1e802]: 02-14
+                      - generic [ref=f1e803]: 10-14
+                    - generic [ref=f1e804]: 只回顾记录，不作病情判断 · 再次点击翻回
+          - generic [ref=f1e805]: CA125不能单独说明复发或疗效。具体指标、单位、方法和参考范围以本人报告为准；未检测/未检出/未知需分别记录。
+  - status
