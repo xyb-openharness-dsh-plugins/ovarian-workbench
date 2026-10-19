@@ -3,19 +3,44 @@
 日期：2026-10-18 08:22（Asia/Shanghai）
 目标：用户正在使用的 **DSH Desktop App**，不是外部 `~/.dsh/profiles/*`，也不是独立 DSH Web。
 
-## 最新安装 v0.1.48（首页模拟资料入口修复）
+## 最新安装 v0.1.51（默认字体再缩小一档）
+
+日期：2026-10-19
+
+- 默认正文14px→13px；显式13px及以上的标准标题/辅助文字各缩小1px，小于13px的图表标注保持不变；大字模式仍为19px。HTML原型同步。
+- 包静态检查及2026试验数据校验通过；原型脚本语法通过。当前字体CSS已核对；JSDOM大字模式计算未能正确解析font简写与font-size覆盖，因此不以其作为大字视觉验收。
+- 已通过Desktop随附pnpm安装目标Harness profile，安装副本0.1.51与源码客户端哈希一致。tar包SHA-256：`810cf8ff15a32ccce78cc1e0158a610538c4177d386588bba1fc0020c535f96d`。
+- 未重启DSH Desktop，重启后生效；本轮仅调整字号，沿用上一版业务回归证据。
+
+---
+
+## 历史安装 v0.1.50（弹窗布局与字体修复）
+
+日期：2026-10-19
+
+- 已通过DSH Desktop随附pnpm安装到该App的Harness profile：`~/Library/Application Support/dsh-desktop/harness/profiles/web`；安装副本版本为0.1.50，客户端与服务端源码/安装副本SHA-256一致。
+- 共享弹窗标题栏从勾选行布局中拆出，恢复16px/20px内边距、左右分布、标题换行与固定关闭按钮；只有内容区滚动，设置页同步适用。
+- 默认正文15px→14px，页标题/卡片标题同步缩小一档，保留大字入口。HTML原型同步修改。
+- 15项回归通过；样式计算核对标题栏padding/左右分布/关闭按钮不压缩和14px正文通过；HTML脚本语法、包静态/2026试验数据校验通过。
+- tar包SHA-256：`35deb6a388313702500d06bb747c6a0d73af31617d4dc9cb138c3b7eac7dc8c9`；客户端：`2920dd5e8fdeaff0bc0cc8df35b63832cb5c45b3ef7ac95487d8b92c8c56cfe3`；服务端：`d30275af7594ec2a33e9ed9d31957a42627a9ea8a63ebd3eb440a1e8498fcb84`。
+- pnpm报告宿主已有peer缺失/冲突警告，安装退出码0；没有重启DSH Desktop，当前进程实际显示未验收。
+
+---
+
+## 历史安装 v0.1.49（一图秀参考原型差距重构）
 
 日期：2026-10-18
 
-- 已安装至 DSH Desktop App 自己的 Harness profile：`~/Library/Application Support/dsh-desktop/harness/profiles/web`；安装包版本0.1.48。
-- 包 SHA-256：`cce0aca9c5a31b3586491c250a2e19ffa7a645361d05f8ff2e2bc2c1e4dca979`；安装副本客户端 SHA-256：`e98d389882a8c90d7263240dce3fbe6feb0c677c4bdfb85486e0e1401ffce865`；服务端 SHA-256：`a86796ec7b0032d92340fc8c50ae6d0b736cdb96c49fb44f97441dfe78708fd0`。
-- 修复截图暴露的入口缺失：现有本机资料即使为空，也可从首页加载模拟档案；加载要求另选空白目录并保留原目录。明确提示空工作区没有曲线是因为尚未载入/记录指标。
-- 回归测试模拟“本机资料、修订1、无指标”的截图状态，确认首页显示两套资料入口；载入后确认一图秀绘制多个指标点、可连接曲线，指标卡和临床历程也有内容。
-- `npm test` 15/15通过；`npm run check`通过，2026试验数据177条，SQLite 行数/日期/哈希通过；`npm run pack:check`通过；安装副本入口测试15/15通过。
-- SQLite/患者存储边界仍见 [SQLITE-SCHEMA-REVIEW.md](SQLITE-SCHEMA-REVIEW.md)：患者档案目前仍是 schemaVersion=2 JSON 工作区，不具备患者SQLite DDL/关系约束/迁移实现。
-- 未重启 DSH Desktop；profile 已更新，但当前运行进程仍需完整退出并重开才能加载0.1.48。
+- 版本升至0.1.49；安装目标仍为 DSH Desktop App 自己的 Harness profile：`~/Library/Application Support/dsh-desktop/harness/profiles/web`。
+- 一图秀现为左侧控制栏与右侧共享时间轴图；最多4项指标同图，各自归一到个人完整记录范围并注明不同单位不可比较；治疗/检查事件独立占轨，支持范围筛选、缩放、点位来源详情、趋势绘制动画和重播。指标目录卡片仍以固定高度Y轴翻面，展示最新值、变化与近5次小趋势。
+- 首页空白本机资料可直接加载示例，不再要求二次选目录或确认；已有临床/患者记录时不提供演示入口。可在未修改的演示档案间切换，编辑后禁止切换，避免覆盖数据。
+- 去掉重复的Agent宽度滑杆和缩放按钮，保留右侧分隔拖动、键盘调节及隐藏/重开。
+- 包 SHA-256：`078651f9ff6fad903d5baa3b14734c9837ca83cf09b851ad35f99818657503b8`；安装副本客户端 SHA-256：`1689bc14eea2d1513908bcf9c7440c9725b190bfe197750ad5461f74e4d0cda3`；服务端 SHA-256：`d30275af7594ec2a33e9ed9d31957a42627a9ea8a63ebd3eb440a1e8498fcb84`。
+- `npm test` 源码15/15、安装副本15/15通过；`npm run check`（含177条仅2026年试验快照校验）与`npm run pack:check`通过。安装时DSH随附pnpm报告既有peer依赖缺失/冲突警告，版本安装成功。
+- 本轮v3.1 HTML原型改动没有打入0.1.49包；DSH Desktop未重启，当前运行进程需完全退出并重开才会载入已安装的0.1.49。
 
 ---
+
 
 ---
 

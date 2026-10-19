@@ -984,17 +984,40 @@ export function apply(ctx, config, adapters = {}) {
           'recurrent-treatment': new URL('../assets/demo-data/recurrent-treatment.json', import.meta.url),
         }
         if (!demoFiles[demoId]) throw Object.assign(new Error('模拟资料编号无效'), { status: 404, code: 'DEMO_NOT_FOUND' })
+        const readFixture = async (id) => {
+          try { return JSON.parse(await readFile(demoFiles[id], 'utf8')) }
+          catch { throw Object.assign(new Error('模拟资料包无法读取；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_UNAVAILABLE' }) }
+        }
+        const validateFixture = (fixture, id) => {
+          if (fixture.demoId !== id || fixture.syntheticOnly !== true || !fixture.workspace || !Array.isArray(fixture.workspace.documents) || !fixture.files || typeof fixture.files !== 'object') throw Object.assign(new Error('模拟资料包结构不完整；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_INVALID' })
+          const seeded = normalizeState(fixture.workspace)
+          const subjectId = seeded.subject?.id
+          if (!safeId(subjectId) || seeded.subject.demoId !== id || !seeded.documents.length || seeded.documents.some((doc) => doc.subjectId !== subjectId || !safeId(doc.id))) throw Object.assign(new Error('模拟资料主体或来源关联校验失败；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_INVALID' })
+          return seeded
+        }
+        const fixture = await readFixture(demoId)
+        const seeded = validateFixture(fixture, demoId)
         const activeRoot = await requireRoot()
         const existing = await loadState()
         const hasRecords = Object.keys(emptyState()).some((key) => Array.isArray(existing[key]) && existing[key].length > 0)
-        if (existing.subject || existing.revision !== 0 || hasRecords) throw Object.assign(new Error('所选资料目录不是空工作区。模拟资料不会覆盖或合并已有病历；请另选一个独立空目录'), { status: 409, code: 'DEMO_REQUIRES_EMPTY_WORKSPACE' })
-        let fixture
-        try { fixture = JSON.parse(await readFile(demoFiles[demoId], 'utf8')) }
-        catch { throw Object.assign(new Error('模拟资料包无法读取；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_UNAVAILABLE' }) }
-        if (fixture.demoId !== demoId || fixture.syntheticOnly !== true || !fixture.workspace || !Array.isArray(fixture.workspace.documents) || !fixture.files || typeof fixture.files !== 'object') throw Object.assign(new Error('模拟资料包结构不完整；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_INVALID' })
-        const seeded = normalizeState(fixture.workspace)
-        const subjectId = seeded.subject?.id
-        if (!safeId(subjectId) || seeded.subject.demoId !== demoId || !seeded.documents.length || seeded.documents.some((doc) => doc.subjectId !== subjectId || !safeId(doc.id))) throw Object.assign(new Error('模拟资料主体或来源关联校验失败；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_INVALID' })
+        const shellSubjectOnly = !existing.subject || (existing.revision <= 1 && ['本机资料', '我的资料', ''].includes(existing.subject.label) && Object.keys(existing.subject).every((key) => ['id', 'label', 'createdAt'].includes(key)))
+        const emptyWorkspaceShell = shellSubjectOnly && existing.revision <= 1 && !hasRecords && !existing.demoId
+        let previousFixture = null
+        if (existing.demoId) {
+          if (existing.demoId === demoId && existing.revision === 1) {
+            const original = validateFixture(await readFixture(demoId), demoId)
+            const arraysMatch = Object.keys(emptyState()).filter((key) => Array.isArray(emptyState()[key])).every((key) => JSON.stringify(existing[key] || []) === JSON.stringify(original[key] || []))
+            if (arraysMatch && JSON.stringify(existing.subject) === JSON.stringify(original.subject)) return send(res, 200, { loaded: true, alreadyLoaded: true, demoId, name: cleanText(fixture.name, 100), revision: existing.revision })
+          }
+          if (existing.revision === 1 && existing.demoId !== demoId && demoFiles[existing.demoId]) {
+            const originalFixture = await readFixture(existing.demoId)
+            const original = validateFixture(originalFixture, existing.demoId)
+            const arraysMatch = Object.keys(emptyState()).filter((key) => Array.isArray(emptyState()[key])).every((key) => JSON.stringify(existing[key] || []) === JSON.stringify(original[key] || []))
+            const subjectMatches = JSON.stringify(existing.subject) === JSON.stringify(original.subject)
+            if (arraysMatch && subjectMatches && existing.demoName === cleanText(originalFixture.name, 100)) previousFixture = originalFixture
+          }
+        }
+        if (!emptyWorkspaceShell && !previousFixture) throw Object.assign(new Error('当前资料目录已有病历或已修改的模拟资料；未做任何更改。只有空白工作区或未编辑的示例档案可以直接载入/切换'), { status: 409, code: 'DEMO_REQUIRES_EMPTY_WORKSPACE' })
         const createdFiles = []
         try {
           for (const [relative, contents] of Object.entries(fixture.files)) {
@@ -1012,10 +1035,20 @@ export function apply(ctx, config, adapters = {}) {
           seeded.revision = 1
           seeded.updatedAt = new Date().toISOString()
           await saveState(seeded, activeRoot)
-          send(res, 200, { loaded: true, demoId, name: seeded.demoName, revision: seeded.revision, recordCounts: { documents: seeded.documents.length, observations: seeded.observations.length, treatmentEvents: seeded.treatmentEvents.length, clinicalRecords: seeded.clinicalRecords.length, supportEntries: seeded.supportEntries.length, questions: seeded.questions.length } })
+          if (previousFixture) {
+            const newPaths = new Set(Object.keys(fixture.files))
+            await Promise.all(Object.entries(previousFixture.files).filter(([relative]) => !newPaths.has(relative)).map(async ([relative, originalContents]) => {
+              const safeRelative = backupRelativePath(relative)
+              if (!safeRelative) return
+              const target = resolve(activeRoot, safeRelative)
+              if (!target.startsWith(`${activeRoot}${sep}`)) return
+              try { if (await readFile(target, 'utf8') === originalContents) await unlink(target) } catch {}
+            }))
+          }
+          send(res, 200, { loaded: true, demoId, name: seeded.demoName, revision: seeded.revision, switched: Boolean(previousFixture), recordCounts: { documents: seeded.documents.length, observations: seeded.observations.length, treatmentEvents: seeded.treatmentEvents.length, clinicalRecords: seeded.clinicalRecords.length, supportEntries: seeded.supportEntries.length, questions: seeded.questions.length } })
         } catch (error) {
           await Promise.all(createdFiles.map((path) => unlink(path).catch(() => {})))
-          if (error.code === 'EEXIST') throw Object.assign(new Error('目标目录已有同名文件；未覆盖原文件或工作区，请另选独立空目录'), { status: 409, code: 'DEMO_DIRECTORY_NOT_EMPTY' })
+          if (error.code === 'EEXIST') throw Object.assign(new Error('目标目录存在与示例同名的文件；未覆盖原文件或工作区，已有病历也不会更改'), { status: 409, code: 'DEMO_DIRECTORY_NOT_EMPTY' })
           throw error
         }
       },

@@ -36,3 +36,5 @@ SET05,docs/prototype/workbench-v3.html,独立草稿、保存/取消/未保存更
 R06,docs/prototype/workbench-v3.html,腹胀/穿刺自愿记录；同日期轴事件节点及一图秀摘要/回链,原型内存模拟；数值来源/视觉与用户走查待审,待确认
 N03,docs/prototype/workbench-v3.html,排便/造口生活影响表单；造口字段折叠可跳过；记录可进入一图秀事件轨,护理材料须有来源并经审核；无自动分诊/护理指引,待确认
 C07,docs/prototype/workbench-v3.html,胚系/体细胞和报告分类表单；自愿问题可加入复诊问题,不收集家属身份或输出风险概率；待用户/遗传咨询专业审核,待确认
+UI_DIALOG_TYPO,docs/prototype/workbench-v3.html,v0.1.50共享弹窗标题关闭左右分布与独立内容滚动；默认14px及较小标题；大字保留,15项回归及样式计算通过；Desktop重启后视觉待验收,用户截图明确要求修复与字体缩小（2026-10-19）
+UI_FONT_13,docs/prototype/workbench-v3.html,v0.1.51默认正文13px及标准标题/辅助字号同步缩小；大字19px保留,安装副本一致；Desktop重启后视觉待验收,用户明确要求再小一号（2026-10-19）

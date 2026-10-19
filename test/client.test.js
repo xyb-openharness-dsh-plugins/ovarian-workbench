@@ -176,6 +176,7 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.match(dom.window.document.body.textContent, /患者接受转录；不代表临床审核或医学验证/)
   assert.match(dom.window.document.body.textContent, /病理报告.pdf/)
   await clickText('关闭')
+  await clickText('病情整理')
   await clickText('查看来源：病理报告.pdf')
   assert.match(dom.window.document.body.textContent, /同意发送到 MinerU 云端处理/)
   const parseButton = [...dom.window.document.querySelectorAll('button')].find((item) => item.textContent === '生成转录草稿')
@@ -215,6 +216,7 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   const datedTableClaim = state.claims.find((item) => item.label === 'CA125' && item.value === '62')
   assert.equal(datedTableClaim?.date, '2026-10-18', 'Chinese report date in the same table row is normalized for the review candidate')
   await clickText('关闭')
+  await clickText('病情一图秀')
   await clickText('手术沟通')
   assert.match(dom.window.document.body.textContent, /仅按本人记录回顾，不推断疗效/)
   await clickText('关闭')
@@ -373,15 +375,13 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   const conversationSplitter = dom.window.document.querySelector('[role="separator"][aria-label="调整 AI 对话区域宽度"]')
   assert.ok(conversationSplitter, 'on-demand native conversation includes an adjustable splitter')
   assert.match(conversationSplitter.title, /拖动调整 AI 对话宽度/)
-  const widthRange = dom.window.document.querySelector('.owb-width-range[aria-label="调整 AI 对话栏宽度"]')
-  assert.ok(widthRange, 'native conversation exposes a visible width slider in addition to the splitter')
+  assert.equal(dom.window.document.querySelector('.owb-native-tools'), null, 'native conversation no longer duplicates width controls in its header')
+  assert.equal(dom.window.document.querySelector('.owb-top .owb-agent-controls'), null, 'workbench top bar no longer duplicates width controls')
   assert.ok(dom.window.document.querySelector('button[aria-label="隐藏 DSH AI 对话"]'), 'native conversation exposes a dedicated hide button')
   assert.equal(dom.window.document.querySelector('button[aria-label="隐藏 DSH AI 对话"]').textContent, '隐藏 ×', 'hide action is a plainly labeled control in the conversation header')
   assert.match(dom.window.document.querySelector('style').textContent, /\.owb-native-toolbar-head\{min-height:28px;display:flex/, 'title and hide action share a dedicated toolbar row')
-  assert.doesNotMatch(dom.window.document.querySelector('style').textContent, /\.owb-native-toolbar \.owb-native-hide\{position:absolute/, 'hide action stays in normal layout flow and cannot overlap width controls')
+  assert.doesNotMatch(dom.window.document.querySelector('style').textContent, /\.owb-native-toolbar \.owb-native-hide\{position:absolute/, 'hide action stays in normal layout flow' )
   assert.match(dom.window.document.querySelector('style').textContent, /\.owb-splitter\{position:relative;z-index:22;flex:0 0 20px/, 'resize handle has a wider pointer target')
-  await act(async () => { dom.window.document.querySelector('button[aria-label="加宽 AI 对话栏"]').click(); await new Promise((resolve) => setTimeout(resolve, 5)) })
-  assert.equal(dom.window.document.querySelector('.owb-native-conversation').style.flexBasis, '40%', 'explicit width controls apply their selected width')
   const workbenchFrame = dom.window.document.querySelector('.owb-frame')
   workbenchFrame.getBoundingClientRect = () => ({ left: 100, right: 1100, width: 1000, top: 0, bottom: 700, height: 700 })
   const pointer = (type, clientX) => { const event = new dom.window.Event(type, { bubbles: true }); Object.defineProperties(event, { clientX: { value: clientX }, pointerId: { value: 1 } }); return event }
@@ -390,10 +390,10 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.match(dom.window.document.querySelector('style').textContent, /@container\(max-width:760px\)\{\.owb-native-conversation\{min-width:0\}/, 'compact workbench keeps the conversation panel in the resizable layout')
   assert.doesNotMatch(dom.window.document.querySelector('style').textContent, /\.owb-splitter\{display:none\}/, 'compact workbench must not hide the resize handle')
   assert.equal(dom.window.document.querySelector('.owb-top .owb-btn.primary').textContent, '隐藏 AI 对话 ×', 'workbench header exposes an explicit hide button while the conversation is open')
-  assert.ok(dom.window.document.querySelector('.owb-top button[aria-label="缩窄 AI 对话栏"]'), 'workbench header exposes a width control outside the embedded conversation')
-  assert.ok(dom.window.document.querySelector('.owb-top button[aria-label="加宽 AI 对话栏"]'), 'workbench header exposes a width control outside the embedded conversation')
+  assert.equal(dom.window.document.querySelector('.owb-top button[aria-label="缩窄 AI 对话栏"]'), null)
+  assert.equal(dom.window.document.querySelector('.owb-top button[aria-label="加宽 AI 对话栏"]'), null)
   await act(async () => { conversationSplitter.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); await new Promise((resolve) => setTimeout(resolve, 5)) })
-  assert.equal(dom.window.document.querySelector('[role="separator"]').getAttribute('aria-valuenow'), '43', 'splitter supports keyboard width adjustment after explicit width controls and pointer dragging')
+  assert.equal(dom.window.document.querySelector('[role="separator"]').getAttribute('aria-valuenow'), '43', 'splitter supports keyboard width adjustment after pointer dragging')
   await clickText('隐藏 AI 对话')
   assert.equal(dom.window.document.querySelector('.owb-native-conversation'), null, 'native conversation can be hidden without leaving the workbench')
   await clickText('打开 AI 对话')
@@ -545,7 +545,7 @@ test('newly diagnosed patient can read first, then create local records and reta
   await act(async () => { root.render(React.createElement(Panel, { conversation: null })); await new Promise((resolve) => setTimeout(resolve, 10)) })
   assert.match(dom.window.document.body.textContent, /载入模拟档案 A/)
   assert.match(dom.window.document.body.textContent, /载入模拟档案 B/)
-  assert.match(dom.window.document.body.textContent, /独立空白目录/)
+  assert.match(dom.window.document.body.textContent, /有病历时系统会拒绝载入/)
   const clickText = async (text) => {
     const button = [...dom.window.document.querySelectorAll('button')].find((item) => item.textContent.includes(text))
     assert.ok(button, `button not found: ${text}`)
@@ -585,7 +585,7 @@ test('demo loader selects an isolated folder and renders the synthetic profile a
   Object.defineProperty(globalThis, 'IS_REACT_ACT_ENVIRONMENT', { configurable: true, value: true })
   let state = { schemaVersion: 2, revision: 1, subject: { id: uuid(991), label: '本机资料' }, storage: { status: 'configured', kind: 'user-selected-directory', path: '/tmp/current-empty-workspace' }, documents: [], claims: [], clinicalRecords: [], observations: [], treatmentEvents: [], supportEntries: [], questions: [], tasks: [], bookmarks: [], snapshots: [], agentResponses: [] }
   const fixture = JSON.parse(await readFile(new URL('../assets/demo-data/newly-diagnosed.json', import.meta.url), 'utf8'))
-  dom.window.confirm = () => true
+  dom.window.confirm = () => { throw new Error('direct demo loading should not open a confirmation dialog') }
   dom.window.fetch = async (input, options = {}) => {
     const url = new URL(String(input), dom.window.location.href)
     if (url.pathname.endsWith('/state')) return { ok: true, status: 200, json: async () => structuredClone(state) }
@@ -596,13 +596,13 @@ test('demo loader selects an isolated folder and renders the synthetic profile a
     throw new Error(`Unexpected request: ${url}`)
   }
   let Panel
-  dom.window.__ModuleLoader__ = { load(descriptor) { const module = descriptor.factory((name) => name === 'react' ? React : (() => { throw new Error(`Unexpected module ${name}`) })()); module.apply({ effect(run) { run() }, uiWorkspace: { async pickDirectory() { return '/tmp/isolated-demo' } }, sessions: {}, desktopWorkbenches: { register(_descriptor, component) { Panel = component; return () => {} }, isActive() { return true } } }) } }
+  dom.window.__ModuleLoader__ = { load(descriptor) { const module = descriptor.factory((name) => name === 'react' ? React : (() => { throw new Error(`Unexpected module ${name}`) })()); module.apply({ effect(run) { run() }, uiWorkspace: { async pickDirectory() { throw new Error('an already selected workspace must load its demo directly without reopening the directory picker') } }, sessions: {}, desktopWorkbenches: { register(_descriptor, component) { Panel = component; return () => {} }, isActive() { return true } } }) } }
   const source = await readFile(clientSourcePath, 'utf8')
   vm.runInNewContext(source, { window: dom.window, document: dom.window.document, navigator: dom.window.navigator, URL: dom.window.URL, URLSearchParams: dom.window.URLSearchParams, Blob, FormData: dom.window.FormData, TextEncoder, setTimeout, clearTimeout, fetch: dom.window.fetch, AbortController, console, globalThis: dom.window })
   const root = createRoot(dom.window.document.getElementById('root'))
   await act(async () => { root.render(React.createElement(Panel, { conversation: null })); await new Promise((resolve) => setTimeout(resolve, 10)) })
   const clickText = async (text) => { const button = [...dom.window.document.querySelectorAll('button')].find((item) => item.textContent.includes(text)); assert.ok(button, `button not found: ${text}`); await act(async () => { button.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })); await new Promise((resolve) => setTimeout(resolve, 15)) }) }
-  assert.match(dom.window.document.body.textContent, /当前工作区没有模拟资料，因此一图秀不会出现示例曲线/)
+  assert.match(dom.window.document.body.textContent, /当前工作区没有模拟资料，所以一图秀暂时没有曲线/)
   assert.match(dom.window.document.body.textContent, /本机资料/)
   await clickText('载入新确诊示例')
   assert.equal(state.demoId, 'newly-diagnosed')
@@ -613,8 +613,12 @@ test('demo loader selects an isolated folder and renders the synthetic profile a
   assert.match(dom.window.document.body.textContent, /HE4/)
   assert.match(dom.window.document.body.textContent, /最近6次|6次记录/)
   const demoMetricDots = dom.window.document.querySelectorAll('.owb-chart .dot')
-  assert.ok(demoMetricDots.length >= 6, 'synthetic accepted observations draw visible dated metric points')
-  assert.ok([...dom.window.document.querySelectorAll('.owb-chart path.line')].length >= 1, 'comparable synthetic observations render a connected trend curve')
+  assert.ok(demoMetricDots.length >= 20, 'synthetic accepted observations draw multiple dated metric points in the shared chart')
+  assert.equal(dom.window.document.querySelectorAll('.owb-combined-chart').length, 1, 'all selected metrics share one date axis and plot')
+  assert.ok(dom.window.document.querySelectorAll('.owb-combined-chart path.line').length >= 2, 'multiple comparable series render smooth colored curves together')
+  assert.ok(dom.window.document.querySelectorAll('.owb-timeline-event').length >= 5, 'treatment and examination events align to the same date axis')
+  assert.ok(dom.window.document.querySelectorAll('.owb-chart-legend [role="listitem"]').length >= 3, 'legend retains each metric unit and observed range')
+  await clickText('重播趋势动画')
   assert.match(dom.window.document.body.textContent, /全部指标 · 点击卡片可翻转/)
   await clickText('临床')
   assert.match(dom.window.document.body.textContent, /手术记录（演示）/)

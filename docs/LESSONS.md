@@ -105,3 +105,8 @@ L23（本脚手架 test/cli.test.mjs）：macOS arm64 / npm 10.9.2 的实际测�
 ## 首次工作台市场投稿：避免重复验收消耗
 
 症状：作者已在指定版本手工验收并提供真实截图，Agent仍反复电脑操作、目录点击和界面扫描，消耗token/时间且可能扰动焦点。修复：自动检查包与来源，交互使用一张 [人工验收单](../templates/MARKET-ACCEPTANCE.md)；明确记录作者/版本/范围，复用确认，只有新改动、失败或缺项才补验。Computer Use受阻转人工，不循环尝试。投稿动作必须是向工作台市场仓库提交一条YAML的真实PR，不能用业务Git推送代替。完整命令及官方要求见 [市场发布流程](10-MARKET-PUBLISHING.md)。
+
+
+## 弹窗标题栏不能复用勾选行布局（2026-10-19）
+
+截图中私密记录弹窗标题贴左边缘，关闭按钮紧跟标题。原因是`.owb-dialoghead`与`.owb-checkrow`合用flex-start/外边距规则，而标题栏缺少自己的padding和justify-content。修复为独立共享标题栏：16px/20px内边距、space-between、标题min-width:0并允许换行、关闭按钮flex-shrink:0；外壳限制容器高度且head/foot不收缩，只有body滚动。各个话题与设置弹窗共享此组件，避免只补截图中的一个页面。
