@@ -38,6 +38,17 @@ npm 包名、patch 插件条目 ID、从 GitHub repository 推导的 `owner/repo
 - 根容器 min-width/min-height 为 0，内部滚动有界；用容器查询/ResizeObserver，不以整窗断点假设业务宽度。
 - 不覆盖公共导航、设置、模式与窗口按钮。macOS 自定义 header 按 `--dsh-frame-leading-clearance` 避让。
 
+### 自建顶栏（customFrame 下，2026-10-20 起实行）
+
+本项目是 `customFrame: true`，框架层自建一条 `<header>`，结构与层级照 `prompts/DSH-WORKBENCH-TOP-BAR.md`（家族通用，颜色按小巢宝品牌换）：
+
+- 结构是**左品牌 + 版本号 / 中一句说明 / 右按钮组**；按钮组 `margin-left:auto` 贴右缘，说明文字 `flex:1` 吃中间空白。
+- 顶栏是根节点首个子元素，且是语义 `<header>`；`padding-inline-start` 用宿主变量，不写死像素。
+- 按钮文案只这五种：无会话 `AI 对话` / 连接中 `正在连接…` / 已连接展开 `收起 AI 对话` / 已连接收起 `打开 AI 对话` / 服务缺失 `AI 对话暂不可用`。
+- 版本 chip 是中性灰，不跟品牌主色；主按钮是整条顶栏唯一的强色块，顶栏整体退后，业务区仍是视觉主体。
+- 业务页里的 `.owb-top` 不再重复品牌、版本号与 AI 按钮（只留页面名与资料状态）。
+- 约束由 `test/client.test.js` 的「自建顶栏」段逐条断言；真机验收仍要在 DSH Desktop 里看（§7 清单）。
+
 ## 文件与会话
 
 没有会话也能浏览、创建和选择业务记录。需要文件/工作区时先用宿主目录选择器，用户取消无残留；原路径丢失重新选择，不静默创建同名目录。

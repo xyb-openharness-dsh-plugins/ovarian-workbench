@@ -362,7 +362,7 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.match(dom.window.document.body.textContent, /mock DSH 原生对话/)
   const pickerCallsBeforeOwnershipFailure = directoryPickerCalls
   ownershipUnavailable = true
-  await clickText('隐藏 AI 对话')
+  await clickText('收起 AI 对话')
   await clickText('打开 AI 对话')
   assert.match(dom.window.document.body.textContent, /暂时无法确认此会话是否归属小巢宝工作台/)
   assert.equal(directoryPickerCalls, pickerCallsBeforeOwnershipFailure, 'unavailable ownership must fail closed without opening the picker or creating another session')
@@ -370,6 +370,19 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   ownershipUnavailable = false
   await clickText('打开 AI 对话')
   assert.match(dom.window.document.body.textContent, /mock DSH 原生对话/, 'retry with available ownership restores the same conversation')
+
+  /* ---- 自建顶栏（prompts/DSH-WORKBENCH-TOP-BAR.md）---- */
+  const cssText = dom.window.document.querySelector('style').textContent
+  const bar = dom.window.document.querySelector('.owb-root > .owb-framebar')
+  assert.ok(bar, 'frame top bar is the first child of the customFrame root')
+  assert.equal(dom.window.document.querySelector('.owb-root').firstElementChild.tagName, 'HEADER', 'root first child is a semantic header')
+  assert.equal(bar.querySelector('.owb-fb-brand').textContent, '🥚 小巢宝')
+  assert.match(bar.querySelector('.owb-fb-ver').textContent, /^v\d+\.\d+\.\d+$/, 'version chip carries the build version')
+  assert.ok(bar.querySelector('.owb-fb-hint').textContent.length > 10, 'top bar carries one line of state explanation')
+  assert.match(cssText, /\.owb-framebar\{[^}]*padding-inline-start:var\(--dsh-frame-leading-clearance,12px\)/, 'leading clearance comes from the host variable')
+  assert.match(cssText, /\.owb-framebar \.owb-fb-hint\{flex:1;min-width:200px[^}]*\}/, 'hint takes the middle space and will not collapse to a column')
+  assert.match(cssText, /\.owb-framebar \.owb-fb-actions\{display:flex;align-items:center;gap:6px;flex:0 0 auto;margin-left:auto\}/, 'action group sticks to the right edge')
+  assert.match(cssText, /\.owb-framebar \.owb-btn\.primary\{[^}]*padding:5px 14px[^}]*border-radius:999px/, 'primary action matches the compact pill sizing')
   assert.equal(dom.window.document.querySelector('.owb-native-conversation').style.flexBasis, '35%', 'default agent width leaves enough room for the workbench navigation at desktop widths')
   assert.match(dom.window.document.querySelector('style').textContent, /\.owb-frame\{[^}]*flex-direction:row-reverse/, 'the DSH native conversation is laid out to the right of the centered workbench')
   const conversationSplitter = dom.window.document.querySelector('[role="separator"][aria-label="调整 AI 对话区域宽度"]')
@@ -389,12 +402,13 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.equal(dom.window.document.querySelector('.owb-native-conversation').style.flexBasis, '45%', 'pointer dragging adjusts the right-side conversation and respects its maximum width')
   assert.match(dom.window.document.querySelector('style').textContent, /@container\(max-width:760px\)\{\.owb-native-conversation\{min-width:0\}/, 'compact workbench keeps the conversation panel in the resizable layout')
   assert.doesNotMatch(dom.window.document.querySelector('style').textContent, /\.owb-splitter\{display:none\}/, 'compact workbench must not hide the resize handle')
-  assert.equal(dom.window.document.querySelector('.owb-top .owb-btn.primary').textContent, '隐藏 AI 对话 ×', 'workbench header exposes an explicit hide button while the conversation is open')
+  assert.equal(dom.window.document.querySelector('.owb-framebar .owb-btn.primary').textContent, '收起 AI 对话', 'frame top bar exposes the collapse action while the conversation is open')
+  assert.equal(dom.window.document.querySelector('.owb-top .owb-btn.primary'), null, 'business page top bar no longer duplicates the AI action')
   assert.equal(dom.window.document.querySelector('.owb-top button[aria-label="缩窄 AI 对话栏"]'), null)
   assert.equal(dom.window.document.querySelector('.owb-top button[aria-label="加宽 AI 对话栏"]'), null)
   await act(async () => { conversationSplitter.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })); await new Promise((resolve) => setTimeout(resolve, 5)) })
   assert.equal(dom.window.document.querySelector('[role="separator"]').getAttribute('aria-valuenow'), '43', 'splitter supports keyboard width adjustment after pointer dragging')
-  await clickText('隐藏 AI 对话')
+  await clickText('收起 AI 对话')
   assert.equal(dom.window.document.querySelector('.owb-native-conversation'), null, 'native conversation can be hidden without leaving the workbench')
   await clickText('打开 AI 对话')
   assert.ok(dom.window.document.querySelector('.owb-native-conversation'), 'owned native session can be reopened on demand')
@@ -611,9 +625,12 @@ test('demo loader selects an isolated folder and renders the synthetic profile a
   await clickText('病情一图秀')
   assert.match(dom.window.document.body.textContent, /CA125/)
   assert.match(dom.window.document.body.textContent, /HE4/)
-  assert.match(dom.window.document.body.textContent, /最近6次|6次记录/)
+  // 不写死条数：模拟资料加密到 6 个月后，每条指标的记录数由数据决定（2026-10-20）
+  assert.match(dom.window.document.body.textContent, /次记录/)
+  assert.match(dom.window.document.body.textContent, /点击翻面看最近5次/)
   const demoMetricDots = dom.window.document.querySelectorAll('.owb-chart .dot')
-  assert.ok(demoMetricDots.length >= 20, 'synthetic accepted observations draw multiple dated metric points in the shared chart')
+  // 6 个月连续采样后，每条指标至少贡献 8 个点（加密前是 6 个点、且只到 8 月）
+  assert.ok(demoMetricDots.length >= 40, 'synthetic accepted observations draw multiple dated metric points in the shared chart')
   assert.equal(dom.window.document.querySelectorAll('.owb-combined-chart').length, 1, 'all selected metrics share one date axis and plot')
   assert.ok(dom.window.document.querySelectorAll('.owb-combined-chart path.line').length >= 2, 'multiple comparable series render smooth colored curves together')
   assert.ok(dom.window.document.querySelectorAll('.owb-timeline-event').length >= 5, 'treatment and examination events align to the same date axis')
