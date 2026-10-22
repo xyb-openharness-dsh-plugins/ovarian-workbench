@@ -5,7 +5,7 @@ import { constants as fsConstants } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { extractWithMineru, mineruCliPath } from './mineru.js'
+import { extractWithMineru, resolveToken, MINERU_MODEL_DEFAULT } from './mineru.js'
 
 export const name = 'ovarian-workbench-main'
 export const inject = ['connection', 'webServer', 'credentials']
@@ -19,6 +19,12 @@ const MAX_BACKUP_ENTRIES = 5000
 const MAX_BACKUP_BYTES = 2 * 1024 * 1024 * 1024
 const MAX_BACKUP_FILE_BYTES = 20 * 1024 * 1024
 const MINERU_CREDENTIAL_REF = 'OVARIAN_WORKBENCH_MINERU_TOKEN'
+/**
+ * 解析通道（2026-10-22 升级）：原来走 `mineru-open-api` CLI（`cliAvailable` 字段），
+ * 现在直接走 MinerU HTTP API v4 四步。桌面端从 Finder 启动时 PATH 里没有那个二进制，
+ * 市场分发的用户机器更没有——所以不再以"CLI 是否安装"作为可用性判断。
+ */
+const MINERU_TRANSPORT = 'http-api-v4'
 const allowedTypes = new Set(['application/pdf', 'image/jpeg', 'image/png', 'image/webp', 'text/plain'])
 
 function emptyState() {
@@ -186,15 +192,22 @@ export function apply(ctx, config, adapters = {}) {
   }
 
   async function mineruCredential() {
+    // 1) 用户在设置里存的 Token（Desktop 安全凭据存储，最高优先）
     try {
       const user = await ctx.credentials?.resolve?.(MINERU_CREDENTIAL_REF)
       if (user?.value) return { token: user.value, source: 'user' }
     } catch {}
+    // 2) 本机唯一密钥文件 `.secrets/mineru.json`，其次环境变量（文件优先、env 兜底）
+    try {
+      const local = resolveToken()
+      if (local.token) return { token: local.token, source: local.source }
+    } catch {}
+    // 3) 社区随包凭据（最后兜底）
     const shared = await sharedMineruCredential()
     return shared?.token ? { token: shared.token, source: shared.source || 'community' } : { token: '', source: shared?.source || 'unavailable' }
   }
 
-  async function setParsedDocument(documentId, markdown, engine, consentAt = null) {
+  async function setParsedDocument(documentId, markdown, engine, consentAt = null, pages = null) {
     const relativePath = join('extractions', `${documentId}-${randomUUID()}.md`)
     const absolutePath = resolve(await requireRoot(), relativePath)
     if (!absolutePath.startsWith(`${root}${sep}`)) throw Object.assign(new Error('解析结果路径无效'), { status: 400, code: 'INVALID_PATH' })
@@ -209,7 +222,9 @@ export function apply(ctx, config, adapters = {}) {
         doc.parsedAt = new Date().toISOString()
         doc.parseRelativePath = relativePath
         doc.cloudConsentAt = consentAt
-        return { id: doc.id, parseStatus: doc.parseStatus, parseEngine: engine, parsedAt: doc.parsedAt }
+        // 页数来自 MinerU 的 total_pages 或 content_list 的 page_idx 上限；两处都没有就是 null，不猜
+        doc.parsePages = Number.isInteger(pages) ? pages : null
+        return { id: doc.id, parseStatus: doc.parseStatus, parseEngine: engine, parsedAt: doc.parsedAt, parsePages: doc.parsePages }
       })
       return result.result
     } catch (error) {
@@ -867,9 +882,9 @@ export function apply(ctx, config, adapters = {}) {
           let available = false
           if (root) { try { available = (await stat(root)).isDirectory() } catch {} }
           const credential = await mineruCredential()
-          const cliAvailable = adapters.hasMineruCli ? await adapters.hasMineruCli() : Boolean(await mineruCliPath())
+          const transport = adapters.mineruTransport || MINERU_TRANSPORT
           const guidance = await guidancePackage()
-          return send(res, 200, { schemaVersion: 1, dataRoot: root, status: !root ? 'directory-required' : available ? 'configured' : 'directory-unavailable', parseMode, mineru: { configured: Boolean(credential.token), source: credential.source, cliAvailable, perFileConsentRequired: true }, referencePackage: 'bundled-2026-snapshot', guidance: { packageId: guidance.package_id, builtAt: guidance.built_at, clinicalUseStatus: guidance.clinical_use_status, defaultRegion: guidance.default_region, boundary: guidance.boundary, refreshPolicy: guidance.refresh_policy, sources: guidance.sources.map(({ id, title, display_title, publisher, region, source_type, publication_date, official_announcement_date, last_updated, last_content_verified, verification_status, content_included, applicability_note, limitations, url, additional_metadata_url, documentOutline }) => ({ id, title, displayTitle: display_title || title, publisher, region, sourceType: source_type, publicationDate: publication_date, officialAnnouncementDate: official_announcement_date || null, lastUpdated: last_updated, lastContentVerified: last_content_verified, verificationStatus: verification_status, contentIncluded: content_included, applicabilityNote: applicability_note, limitations, url, additionalMetadataUrl: additional_metadata_url || null, documentOutline: documentOutline || null })) } })
+          return send(res, 200, { schemaVersion: 1, dataRoot: root, status: !root ? 'directory-required' : available ? 'configured' : 'directory-unavailable', parseMode, mineru: { configured: Boolean(credential.token), source: credential.source, transport, model: MINERU_MODEL_DEFAULT, perFileConsentRequired: true }, referencePackage: 'bundled-2026-snapshot', guidance: { packageId: guidance.package_id, builtAt: guidance.built_at, clinicalUseStatus: guidance.clinical_use_status, defaultRegion: guidance.default_region, boundary: guidance.boundary, refreshPolicy: guidance.refresh_policy, sources: guidance.sources.map(({ id, title, display_title, publisher, region, source_type, publication_date, official_announcement_date, last_updated, last_content_verified, verification_status, content_included, applicability_note, limitations, url, additional_metadata_url, documentOutline }) => ({ id, title, displayTitle: display_title || title, publisher, region, sourceType: source_type, publicationDate: publication_date, officialAnnouncementDate: official_announcement_date || null, lastUpdated: last_updated, lastContentVerified: last_content_verified, verificationStatus: verification_status, contentIncluded: content_included, applicabilityNote: applicability_note, limitations, url, additionalMetadataUrl: additional_metadata_url || null, documentOutline: documentOutline || null })) } })
         }
         if (req.method !== 'POST') return send(res, 405, { code: 'METHOD_NOT_ALLOWED', message: '只支持读取或提交设置' })
         const body = await readBody(req, 16 * 1024)
@@ -883,8 +898,8 @@ export function apply(ctx, config, adapters = {}) {
         }
         if (body.parseMode !== undefined) await persistSettings({ parseMode: body.parseMode })
         const credential = await mineruCredential()
-        const cliAvailable = adapters.hasMineruCli ? await adapters.hasMineruCli() : Boolean(await mineruCliPath())
-        return send(res, 200, { saved: true, parseMode, mineru: { configured: Boolean(credential.token), source: credential.source, cliAvailable, perFileConsentRequired: true } })
+        const transport = adapters.mineruTransport || MINERU_TRANSPORT
+        return send(res, 200, { saved: true, parseMode, mineru: { configured: Boolean(credential.token), source: credential.source, transport, model: MINERU_MODEL_DEFAULT, perFileConsentRequired: true } })
       },
     },
     {
@@ -942,6 +957,7 @@ export function apply(ctx, config, adapters = {}) {
         let markdown = ''
         let engine = 'local-text'
         let consentAt = null
+        let parsePages = null
         if (parseMode === 'local') {
           if (doc.mime !== 'text/plain') throw Object.assign(new Error('仅本机模式暂支持 TXT 文本；PDF和图片需要逐份确认后使用MinerU云端识别'), { status: 409, code: 'LOCAL_PARSE_UNSUPPORTED' })
           markdown = bytes.toString('utf8')
@@ -949,13 +965,14 @@ export function apply(ctx, config, adapters = {}) {
           if (body.confirmCloudUpload !== true) throw Object.assign(new Error('发送报告到 MinerU 云端前，请逐份确认原件将离开本机'), { status: 403, code: 'CLOUD_CONSENT_REQUIRED' })
           const credential = await mineruCredential()
           if (!credential.token) throw Object.assign(new Error('MinerU 凭据不可用。可在设置中替换个人 Token，或继续手工整理'), { status: 503, code: 'MINERU_UNAVAILABLE' })
-          const parsed = await (adapters.extractWithMineru || extractWithMineru)(bytes, extname(doc.name).toLowerCase(), { token: credential.token, tokenConfigured: true, model: 'pipeline' })
+          const parsed = await (adapters.extractWithMineru || extractWithMineru)(bytes, extname(doc.name).toLowerCase(), { token: credential.token, filename: doc.name, model: MINERU_MODEL_DEFAULT })
           markdown = parsed.markdown
           engine = parsed.engine
           consentAt = new Date().toISOString()
+          parsePages = Number.isInteger(parsed.pages) ? parsed.pages : null
         }
         if (!markdown || markdown.length > 2_000_000) throw Object.assign(new Error('解析结果为空或超过保存上限；原件未更改，可改用手工录入'), { status: 422, code: 'PARSE_RESULT_INVALID' })
-        const result = await setParsedDocument(documentId, markdown, engine, consentAt)
+        const result = await setParsedDocument(documentId, markdown, engine, consentAt, parsePages)
         send(res, 200, { ...result, markdown, notice: '以下是机器转录草稿，不是诊断结论；请逐项对照原件，确认后再录入工作台。' })
       },
     },

@@ -157,6 +157,12 @@ test('older DSH Desktop 0.1 RC profile keeps the authenticated webServer fallbac
 test('MinerU settings keep secrets private and require per-document cloud consent', async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'ovarian-wb-mineru-'))
   t.after(() => rm(root, { recursive: true, force: true }))
+  // 本机 shell 里可能留着一条已过期的 MINERU_TOKEN。凭据链是
+  // 「个人 Token > .secrets/mineru.json > 环境变量 > 社区凭据」，不摘掉它这条用例
+  // 就会测到机器环境而不是被测代码（而且断言会随机器不同而变）。
+  const savedEnvToken = process.env.MINERU_TOKEN
+  delete process.env.MINERU_TOKEN
+  t.after(() => { if (savedEnvToken !== undefined) process.env.MINERU_TOKEN = savedEnvToken })
   let usedToken = ''
   const api = harness(root, {
     resolveCommunityMineruToken: async () => ({ token: 'community-test-token', source: 'community' }),

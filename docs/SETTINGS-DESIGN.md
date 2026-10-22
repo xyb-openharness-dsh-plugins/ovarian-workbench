@@ -33,7 +33,13 @@
 - 说明共享额度/可用性可能变化、Token失效/限流/超时处理、可选的本地降级和重试；不得保证公益服务持续可用，不因密钥失败丢失本地原件。
 - 配置保存到工作台私有配置/系统安全存储，权限受限、原子更新；不写入患者资料目录、导出、诊断日志或前端API响应。报错必须对凭据做脱敏。
 
-实现状态（2026-10-17）：设置页读取小胰宝已安装包的共享 MinerU 凭据提供器，不将凭据复制进卵巢癌包；个人 Token 经 DSH Host credential store 保存，状态接口只返回来源/可用性。转录按钮每次要求对当前原件单独确认；转录 Markdown 存在所选资料目录的 `extractions/` 下，并在文档记录中注明引擎、时间和同意时间。TXT 可切为本机读取。当前不是后台队列，也不会自动将转录文本解析成临床字段候选；需要患者逐项对照并手工录入。社区凭据和 MinerU CLI 在目标 Desktop 重启后的真实调用仍待验证。
+实现状态（2026-10-22）：设置页读取小胰宝已安装包的共享 MinerU 凭据提供器，不将凭据复制进卵巢癌包；个人 Token 经 DSH Host credential store 保存，状态接口只返回来源/可用性。转录按钮每次要求对当前原件单独确认；转录 Markdown 存在所选资料目录的 `extractions/` 下，并在文档记录中注明引擎（`mineru-api-pipeline` / `mineru-api-vlm`）、页数、时间和同意时间。TXT 可切为本机读取。当前不是后台队列，也不会自动将转录文本解析成临床字段候选；需要患者逐项对照并手工录入。
+
+**解析通道已换（2026-10-22）**：不再调用 `mineru-open-api` CLI，改为直连 MinerU **HTTP API v4** 四步（申请上传链接 → PUT 上传 → 轮询批次 → 下载 zip 取 `full.md`）。理由是 Desktop 从 Finder 启动时 PATH 里没有那个二进制，市场分发的用户机器更没有——原来设置页那句「未找到 MinerU CLI；云端解析暂不可用」会变成默认状态。现在状态接口返回 `transport: 'http-api-v4'` 与 `model`，不再有 `cliAvailable`。
+
+**凭据优先级**：用户在设置里保存的 Token（Host credential store）> 本机 `.secrets/mineru.json`（唯一本地密钥文件，600、已在 .gitignore）> 环境变量 `MINERU_TOKEN`（仅兜底）> 随包社区凭据。文件优先、env 其次：一条遗留的过期 env 不该长期盖住界面里新存的 Token。
+
+**Flash 不再做**：2026-10-22 用户定「flash 不用了」。认证失败时只报错并给申请链接（`https://mineru.net/apiManage/token`），不假装降级成功，也没有免 token 的旁路。
 
 ### 3. 临床参考与数据包目录
 
