@@ -418,7 +418,8 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.equal(dom.window.document.querySelector('button[aria-label="隐藏 DSH AI 对话"]').textContent, '隐藏 ×', 'hide action is a plainly labeled control in the conversation header')
   assert.match(dom.window.document.querySelector('style').textContent, /\.owb-native-toolbar-head\{min-height:28px;display:flex/, 'title and hide action share a dedicated toolbar row')
   assert.doesNotMatch(dom.window.document.querySelector('style').textContent, /\.owb-native-toolbar \.owb-native-hide\{position:absolute/, 'hide action stays in normal layout flow' )
-  assert.match(dom.window.document.querySelector('style').textContent, /\.owb-splitter\{position:relative;z-index:22;flex:0 0 20px/, 'resize handle has a wider pointer target')
+  assert.match(dom.window.document.querySelector('style').textContent, /\.owb-splitter\{position:absolute;z-index:22;cursor:col-resize/, 'resize handle is a 1px absolute line that does not take layout width')
+  assert.ok(conversationSplitter.querySelector('[aria-hidden="true"]'), 'a transparent 11px child provides the pointer hit area')
   const workbenchFrame = dom.window.document.querySelector('.owb-frame')
   workbenchFrame.getBoundingClientRect = () => ({ left: 100, right: 1100, width: 1000, top: 0, bottom: 700, height: 700 })
   const pointer = (type, clientX) => { const event = new dom.window.Event(type, { bubbles: true }); Object.defineProperties(event, { clientX: { value: clientX }, pointerId: { value: 1 } }); return event }
