@@ -1,5 +1,16 @@
 # 变更记录
 
+## 0.1.52 — 2026-10-27（36 号 v2 引入：指南可点 + 状态卡）
+
+**一句话**：从零引入疾病概要四段（整页浮层）与看板 D+N 状态卡；装机层入口在 `lib/client.js`，原型在 `prototypes/v0.1.52/`。
+
+- **新增 `prototypes/v0.1.52/`**：`primer.js` / `primer.css`（starter 2026-10-27 链接版原样）、`primer-data.js`（`window.DISEASE_PRIMER`）、`index.html`（顶栏「疾病概要」+ 状态卡 + 原型页）。
+- **装机层 `lib/client.js`**：内联同一份四段数据（`DISEASE_PRIMER`），顶栏新增「疾病概要」按钮与整页浮层；`data-primer-open`、`role=dialog`、返回/关闭两个独立入口、Esc 只退一层、打开压一条 history / 关闭走 `history.back()`、关闭后焦点与滚动位置回收、https-only 渲染、缺链接 `.dp-miss` 红标。
+- **状态卡 §2.6**：首页首卡四件（卡头 `D+N 状态卡 · 距下一阶段` / 大字 `待初始化`（本仓无治疗起点锚点，不手填）/ 现状行（阶段 + 状态 + 下次）/ 出口按钮排：主按钮「去完成三步初始化 →」+ 副按钮「疾病概要：卵巢癌是什么？」）。
+- **链接**：evidence 表 7 行——卫健委 2022 官方 PDF（原件，36 页）、CSCO 2026 官方活动报道（hub，未取得正文）、NCI 患者版/专业版（fulltext）；ASCO / ESMO / JSGO 未取得原件，显式 `nolink` + note。`verify-links`：CSCO 9268/9339、NCI 两页 OK；卫健委 PDF 为 `THIN`（PDF 无正文抽取），改由 `curl` 核验 `Content-Type: application/pdf`（450,787 字节，file 判定 PDF 1.7 / 36 页）并用 `check-primer-links --http` 复核，结果如实记入 `primer-data.js` note 与结果文件。
+- **闸门**：新增 `scripts/check-primer-links.mjs`（L1–L12，含 `--self-test`）与 `scripts/check-primer-client.mjs`（安装层结构 + 内联数据同源），均接入 `npm run check`；`scripts/probe-disease-primer.mjs`（starter 版）对本仓原型 P1–P9 + E0 = 10/10，`--self-test` 3 条 FAIL。
+- **测试**：`test/client.test.js` 增加装机层交互断言（按钮 → 四段顺序 → 返回/关闭/Esc → 焦点回收）；`npm test` 22/22。
+
 ## 未发布 — 2026-10-22（MinerU 由 CLI 升级为 HTTP API v4，纳入家族统一口径）
 
 **一句话**：解析不再依赖本机 `mineru-open-api` 二进制，改为直连 API v4 四步；同时对齐家族口径（默认 pipeline、`.secrets/mineru.json` 唯一密钥文件、不做 Flash）。

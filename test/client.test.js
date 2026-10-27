@@ -134,6 +134,30 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.match(dom.window.document.body.textContent, /测试资料/)
   const packageVersion = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version
   assert.ok(dom.window.document.body.textContent.includes(`v${packageVersion}`), `workbench header reflects package version ${packageVersion}`)
+
+  /* 36 号 · 疾病概要：装机层结构断言（按钮 → 四段顺序 → 返回/关闭/Esc → 焦点回收） */
+  assert.match(dom.window.document.body.textContent, /D\+N 状态卡 · 距下一阶段/, 'status card eyebrow present')
+  assert.match(dom.window.document.body.textContent, /疾病概要：卵巢癌是什么？/, 'status card secondary exit opens the primer')
+  const primerTrigger = dom.window.document.querySelector('[data-primer-open]')
+  assert.ok(primerTrigger, 'primer trigger button exists in installed UI')
+  assert.match(primerTrigger.getAttribute('aria-label') || '', /定义/)
+  assert.match(primerTrigger.getAttribute('aria-label') || '', /趋势/)
+  const clickNode = async (node) => { await act(async () => { node.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })); await new Promise((resolve) => setTimeout(resolve, 20)) }) }
+  await clickNode(primerTrigger)
+  let primerOverlay = dom.window.document.getElementById('disease-primer')
+  assert.ok(primerOverlay, 'primer overlay opens')
+  assert.deepEqual([...primerOverlay.querySelectorAll('.dp-section')].map((node) => node.dataset.dpSection), ['definition', 'evidence', 'landscape', 'trend'])
+  assert.ok(primerOverlay.querySelector('[data-dp="back"]') && primerOverlay.querySelector('[data-dp="close"]'), 'back and close are separate entrances')
+  assert.ok(primerOverlay.querySelectorAll('a.dp-link[href^="https://"]').length >= 5, 'evidence links are https-only and clickable')
+  await act(async () => { dom.window.dispatchEvent(new dom.window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true })); await new Promise((resolve) => setTimeout(resolve, 360)) })
+  assert.equal(dom.window.document.getElementById('disease-primer'), null, 'Esc closes exactly one layer')
+  assert.equal(dom.window.document.activeElement, primerTrigger, 'focus returns to the trigger after close')
+  await clickNode(primerTrigger)
+  primerOverlay = dom.window.document.getElementById('disease-primer')
+  await clickNode(primerOverlay.querySelector('[data-dp="close"]'))
+  await act(async () => { await new Promise((resolve) => setTimeout(resolve, 360)) })
+  assert.equal(dom.window.document.getElementById('disease-primer'), null, 'close button dismisses the primer')
+
   await clickText('病情整理')
   const importInput = dom.window.document.querySelector('input[type="file"][multiple]')
   const batchFiles = [

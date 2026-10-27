@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>小巢宝 · 卵巢癌患者工作台 · 疾病概要原型 v0.1.52</title>
+<link rel="stylesheet" href="./primer.css">
+<style>
+  :root{
+    --paper:#f8fbfa; --surface:#fff; --ink:#243c40; --ink-2:#42676a; --muted:#637578;
+    --line:#dae6e4; --brand:#007c80; --brand-deep:#075b60; --brand-soft:#e9f5f3;
+    --danger:#a3241b; --tz:1; --radius:16px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font:14px/1.7 -apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}
+  .topbar{display:flex;align-items:center;gap:14px;padding:12px 24px;background:var(--surface);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .brand strong{font-size:17px;letter-spacing:.04em}
+  .brand span{color:var(--muted);font-size:12px;margin-left:8px}
+  .top-actions{display:flex;align-items:center;gap:8px;margin-left:auto}
+  .chip{border:1px solid var(--line);background:#fff;border-radius:9px;padding:0 12px;min-height:36px;font-size:12.5px;color:var(--ink);cursor:pointer}
+  [data-primer-open]{border:1px solid color-mix(in srgb,var(--brand) 34%,transparent);background:var(--brand-soft);color:var(--brand-deep);border-radius:999px;min-height:36px;padding:0 14px;font-size:13px;font-weight:650;cursor:pointer}
+  main{max-width:980px;margin:0 auto;padding:24px 18px 90px}
+  h1{font-size:25px;margin:0 0 10px;font-weight:620}
+  .status{background:var(--brand-soft);border:1px solid #cce5df;border-radius:20px;padding:22px 24px;margin:0 0 20px}
+  .eyebrow{font-size:12px;letter-spacing:.12em;color:var(--brand-deep);margin:0 0 6px}
+  .day{font-size:28px;font-weight:700;color:var(--brand);margin:0 0 8px}
+  .status-line{margin:0 0 14px;color:var(--ink-2)}
+  .status-line b{color:var(--ink)}
+  .status-actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .status-actions button{border:1px solid var(--line);background:#fff;border-radius:10px;min-height:40px;padding:0 15px;font:inherit;cursor:pointer}
+  .status-actions button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  .init{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+  .card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;margin:0 0 14px}
+  .hint{font-size:12.5px;color:var(--muted);margin:6px 0 0}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand"><strong>小巢宝</strong><span>卵巢癌患者工作台 · v0.1.52 原型</span></div>
+  <div class="top-actions">
+    <button class="chip" type="button">大字</button>
+    <button class="chip" type="button">⚙ 设置</button>
+    <button type="button" data-primer-open aria-haspopup="dialog" aria-controls="disease-primer"
+            aria-label="疾病概要：定义、医学资料与指南情况、治疗全景、发展趋势"
+            title="疾病概要：定义 · 指南 · 治疗全景 · 趋势">疾病概要</button>
+  </div>
+</header>
+
+<main>
+  <h1>先把眼前最难的一件事理清楚</h1>
+  <section class="status" aria-labelledby="status-title">
+    <p class="eyebrow" id="status-title">D+N 状态卡 · 距下一阶段</p>
+    <p class="day">待初始化</p>
+    <p class="status-line"><b>当前阶段：</b>尚未建立治疗起点 · 状态待初始化 · <b>下次：</b>待初始化</p>
+    <div class="status-actions">
+      <button class="primary" type="button">去完成三步初始化 →</button>
+      <button type="button" data-primer-open aria-haspopup="dialog" aria-controls="disease-primer"
+              aria-label="疾病概要：定义、医学资料与指南情况、治疗全景、发展趋势">疾病概要：卵巢癌是什么？</button>
+    </div>
+    <p class="init">三步初始化：① 上传已有报告 → ② 逐条核对候选记录 → ③ 确认治疗起点日期。数字由起点派生，不手填。</p>
+  </section>
+
+  <div class="card"><b>这一页是 36 号疾病概要的原型落点</b>
+    <p class="hint">右上角「疾病概要」打开整页四段：定义、医学资料规范和指南情况、目前治疗全景概要、发展趋势。返回 / 关闭 / Esc 三个入口，每个只退一层；关闭后焦点回到触发按钮。</p>
+  </div>
+  <div class="card"><b>指南原件必须可点</b>
+    <p class="hint">「原件」列使用 https 链接；未取得原件的行写清原因，不在浮窗里复制指南条文。</p>
+  </div>
+  <div class="card"><b>滚动位置测试占位 1</b><p class="hint">关闭浮窗后页面应停在原位置。</p></div>
+  <div class="card"><b>滚动位置测试占位 2</b><p class="hint">填充内容。</p></div>
+  <div class="card"><b>滚动位置测试占位 3</b><p class="hint">填充内容。</p></div>
+  <div class="card"><b>滚动位置测试占位 4</b><p class="hint">填充内容。</p></div>
+  <div class="card"><b>滚动位置测试占位 5</b><p class="hint">填充内容。</p></div>
+  <div class="card"><b>滚动位置测试占位 6</b><p class="hint">填充内容。</p></div>
+  <div class="card"><b>滚动位置测试占位 7</b><p class="hint">填充内容。</p></div>
+  <div class="card"><b>滚动位置测试占位 8</b><p class="hint">填充内容。</p></div>
+</main>
+
+<script src="./primer-data.js"></script>
+<script src="./primer.js"></script>
+</body>
+</html>

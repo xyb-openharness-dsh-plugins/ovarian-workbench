@@ -5,8 +5,9 @@
 
 - 项目 / 品牌：卵巢癌患者工作台（xyb-community-ovarian-workbench）
 - 病种：上皮性卵巢癌、输卵管癌、上皮性原发性腹膜癌（同一诊疗框架、三个原发部位）
-- 最后更新：2026-10-25
-- 数据文件：`prototypes/<vX>/primer-data.js`（`window.DISEASE_PRIMER`）——**待原型期**；现有原型在 `docs/prototype/`
+- 最后更新：2026-10-27
+- 数据文件：`prototypes/v0.1.52/primer-data.js`（`window.DISEASE_PRIMER`）；同一份数据内联在装机层 `lib/client.js`（`DISEASE_PRIMER`），由 `scripts/check-primer-client.mjs` 核对同源
+- 原型页：`prototypes/v0.1.52/index.html`（探针 P1–P9 + E0 = 10/10）
 - README 对应段：`## 疾病概要`
 
 ## 0 原件状态（本项目的前提）
@@ -36,13 +37,13 @@
 
 | 机构 | 文件 | 版本 / 年份 | 原件 | 本台的用途 |
 |---|---|---|---|---|
-| 国家卫生健康委 | 《卵巢癌诊疗指南》 | 2022 年版 | **原件已取得**（官方 PDF 36 页，2026-10-18 核对） | 范围说明与章节导航；明确标为旧版 |
-| CSCO | CSCO 卵巢癌诊疗指南 | 2026 年版（2026-03-12 发放报道、2026-07-25 解读活动） | 未取得正文 | 国内最新版本线索；不作正文引用 |
-| NCI | PDQ 卵巢上皮癌（患者版） | 页面更新 2024-11-22 | 网页可访问 | 美国患者教育，单独标地区 |
-| NCI | PDQ 卵巢上皮癌（专业版） | 页面更新 2025-05-14 | 网页可访问 | 国际背景参考，不决定中国适应证 |
-| ASCO | 复发卵巢癌系统治疗 Living Guideline | 2026.1 | 未取得正文（文献元信息） | 复发情境版本线索 |
-| ESMO | 上皮性卵巢癌指南（快速更新） | 2026 | 未取得正文 | 地区适用边界示例 |
-| 日本妇科肿瘤学会（JSGO） | 卵巢癌治疗指南 | 2025 版（2026 发表） | 未取得正文 | 地区适用边界示例 |
+| 国家卫生健康委 | 《卵巢癌诊疗指南》 | 2022 年版 | [原件已取得（官方 PDF 36 页，2026-10-18 核对）](https://www.nhc.gov.cn/yzygj/c100068/202204/0c1f7d3aca0545abbeb02030ce255930/files/1732863054558_17204.pdf)；官方站点对无头浏览器有 412/400 风控，`verify-links` 判 THIN，`curl`/`--http` 核验为 `application/pdf`（450,787 字节） | 范围说明与章节导航；明确标为旧版 |
+| CSCO | CSCO 卵巢癌诊疗指南 | 2026 年版（2026-03-12 发放报道、2026-07-25 解读活动） | [未取得正文 · 官方活动报道入口](https://www.csco.org.cn/cn/ncontent.aspx?oid=9268)（入口页不是原件） | 国内最新版本线索；不作正文引用 |
+| NCI | PDQ 卵巢上皮癌（患者版） | 页面更新 2024-11-22 | [网页可访问 · 患者版全文](https://www.cancer.gov/types/ovarian/patient/ovarian-epithelial-treatment-pdq) | 美国患者教育，单独标地区 |
+| NCI | PDQ 卵巢上皮癌（专业版） | 页面更新 2025-05-14 | [网页可访问 · 专业版全文](https://www.cancer.gov/types/ovarian/hp/ovarian-epithelial-treatment-pdq) | 国际背景参考，不决定中国适应证 |
+| ASCO | 复发卵巢癌系统治疗 Living Guideline | 2026.1 | 未取得正文（文献元信息）；本仓未收录可验证原文链接 | 复发情境版本线索 |
+| ESMO | 上皮性卵巢癌指南（快速更新） | 2026 | 未取得正文；本仓未收录可验证原文链接 | 地区适用边界示例 |
+| 日本妇科肿瘤学会（JSGO） | 卵巢癌治疗指南 | 2025 版（2026 发表） | 未取得正文；本仓未收录可验证原文链接 | 地区适用边界示例 |
 
 已核到的卫健委 2022 版章节起始页（官方 PDF 页，不代表当前推荐有效性）：概述 1 / 鉴别诊断 10 / 病理分类和手术病理分期 11 / 手术治疗 20 / 化疗 25 / 靶向治疗 30 / 免疫治疗 32 / 放疗 32 / 随访 34。
 
@@ -91,28 +92,32 @@
 
 ## 5 落地清单
 
-- [ ] `prototypes/<vX>/primer.css`（从 `assets/patterns/disease-primer.css` 复制，按项目令牌微调颜色变量，**不改结构**）——待原型期
-- [ ] `prototypes/<vX>/primer.js`（从 `assets/patterns/disease-primer.js` 复制，不改逻辑）——待原型期
-- [ ] `prototypes/<vX>/primer-data.js`（本文件四段转成 `window.DISEASE_PRIMER`）——待原型期
-- [ ] `index.html` 三处引用：`<link rel="stylesheet" href="primer.css">` / `<script src="primer-data.js">` / `<script src="primer.js">`——待原型期
-- [ ] 顶栏出现「?」（不写按钮也行，模块会自动插进 `.top-actions`；自定义位置就放 `<button data-primer-open>`）——待原型期
+- [x] `prototypes/v0.1.52/primer.css`（从 `assets/patterns/disease-primer.css` 复制，不改结构）
+- [x] `prototypes/v0.1.52/primer.js`（从 `assets/patterns/disease-primer.js` 复制，不改逻辑）
+- [x] `prototypes/v0.1.52/primer-data.js`（本文件四段转成 `window.DISEASE_PRIMER`）
+- [x] `index.html` 三处引用：`<link rel="stylesheet" href="primer.css">` / `<script src="primer-data.js">` / `<script src="primer.js">`
+- [x] 顶栏出现「疾病概要」（`<button data-primer-open>`；模块接管并补 a11y 属性）
+- [x] 装机层 `lib/client.js`：同一份数据内联 + 顶栏按钮 + 整页浮层 + 状态卡副按钮
 - [x] README 的 `## 疾病概要` 四段正文写好，小标题与数据文件一致
-- [ ] `node scripts/probe-disease-primer.mjs --url <原型地址>` 全绿，`--self-test` 至少 3 条 FAIL——待原型期
+- [x] `node scripts/probe-disease-primer.mjs --port 8201 --url http://127.0.0.1:8201/prototypes/v0.1.52/index.html` 10/10，`--self-test` 3 条 FAIL
+- [x] `node scripts/check-primer-links.mjs`（L1–L12）与 `node scripts/check-primer-client.mjs` 纳入 `npm run check`
 
-## 6 验收（P1–P8）
+## 6 验收（P1–P9）
 
-本项目原型在 `docs/prototype/`、未迁移到 `prototypes/`，也没有 `primer-data.js`，**P1–P8 全部记「待原型期」，不打勾**。
+原型：`prototypes/v0.1.52/index.html`。装机层：`lib/client.js`（结构断言 + `test/client.test.js` 交互断言）。
 
 | 编号 | 判据 | 结果 |
 |---|---|---|
-| P1 | 顶栏有可点「?」，aria-label 说明四段 | 待原型期 |
-| P2 | 整页面板，四段齐全且顺序为 定义 → 指南 → 治疗全景 → 趋势 | 待原型期 |
-| P3 | 面板宽高 ≥ 视口 90% | 待原型期 |
-| P4 | 打开压一条 history，`history.back()` 收起 | 待原型期 |
-| P5 | 「返回」「关闭」两个独立入口 | 待原型期 |
-| P6 | 关闭后焦点回触发按钮、滚动位置不变 | 待原型期 |
-| P7 | Esc 只退一层 | 待原型期 |
-| P8 | 四段齐全、每段有来源、趋势段无禁止词 | 待原型期 |
+| P1 | 顶栏有可点入口，aria-label 说明四段 | PASS |
+| P2 | 整页面板，四段齐全且顺序为 定义 → 指南 → 治疗全景 → 趋势 | PASS |
+| P3 | 面板宽高 ≥ 视口 90% | PASS |
+| P4 | 打开压一条 history，`history.back()` 收起 | PASS |
+| P5 | 「返回」「关闭」两个独立入口 | PASS |
+| P6 | 关闭后焦点回触发按钮、滚动位置不变 | PASS |
+| P7 | Esc 只退一层 | PASS |
+| P8 | 四段齐全、每段有来源、趋势段无禁止词 | PASS |
+| P9 | 正文/列表/来源行同左基线、右边界极差 ≤2px（1440/900/390） | PASS |
+| E0 | 页面无 JS/console error | PASS |
 
 ## 7 本项目教训
 
