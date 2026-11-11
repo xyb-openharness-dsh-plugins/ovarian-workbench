@@ -1,6 +1,6 @@
 {
   "name": "@xyb-community/ovarian-workbench",
-  "version": "0.1.53",
+  "version": "0.1.54",
   "description": "面向卵巢癌患者与照护者的本机病程资料、治疗历程、指标趋势与医患沟通工作台设计项目",
   "private": true,
   "type": "module",

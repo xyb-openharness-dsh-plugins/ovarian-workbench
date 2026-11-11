@@ -1,3 +1,9 @@
+## 0.1.54（2026-11-11，AI 对话面板激活修复第二轮）
+
+- 创建走 defaultWorkspace + newSession（不再 ensureSession/pickDirectory）
+- 草稿只填不发（移除 input.submit 自动发送）
+- 订阅会话变化触发重渲染；无会话时点按钮创建而非禁用
+
 # 变更记录
 
 ## 0.1.52 — 2026-10-27（36 号 v2 引入：指南可点 + 状态卡）
