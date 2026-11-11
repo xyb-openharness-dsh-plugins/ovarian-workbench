@@ -1,3 +1,11 @@
+## 0.1.55（2026-11-11，AI 对话面板契约第三轮复核）
+
+- 补齐**会话变化订阅**：`desktopWorkbenches.subscribe()` 触发 `paneTick` 重渲染（0.1.54 记为已做，代码里实际没有）
+- 能力门禁从「`ensureSession` 存在」改为「`newSession` 存在」；全程不调用 `ensureSession`
+- 取消目录选择提示改为「已取消资料目录选择，没有创建会话。可以再次点击「AI 对话」重试。」
+- 移除 `placeAgentDraft` 里自相矛盾的第二个 toast（「已将你选中的内容发送到…」），草稿只填不发
+- 版本号对齐：VERSION / package.json / `APP_VERSION`（此前 0.1.54 与 0.1.53 打架）
+
 ## 0.1.54（2026-11-11，AI 对话面板激活修复第二轮）
 
 - 创建走 defaultWorkspace + newSession（不再 ensureSession/pickDirectory）
