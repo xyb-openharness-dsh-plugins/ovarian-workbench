@@ -1,3 +1,20 @@
+## 0.1.56 — 2026-11-13
+
+三缺口批量补齐，本轮完成 2/3：
+
+- **A 资料目录（补齐）**：`selectDataRoot` 本就会调 `uiWorkspace.pickDirectory()` 并 POST `/api/…/settings/data-root`，但**客户端没有口径校验**（只有服务端拦）。补上主目录本身 / 桌面 / 下载根目录 / tmp 的本地拦截与理由，避免"选了才发现被拒"。
+- **B 临床试验（补齐）**：试验检索页此前有检索/结果/收藏，缺 35 号**段1 建档**。新增「参与匹配的已确认字段」卡（只列 `status==='recorded'` 的病理/分子字段，并写明待核候选、未检测、报告未提供都不进池），每条结果补三态证据行与「分层：需补充信息 / 符合度：暂无可对照项（不编百分数）/ 这不是入组资格」。
+- **C 新建患者（STUCK，未实现）**：本仓是**单主体 JSON 文档存储**——`command('create-subject')` 在已有主体时直接 409 `SUBJECT_EXISTS`，状态存在 `state.json`（带 revision / idempotency），没有 sqlite、也没有 subjects 表。要支持「多档案 + is_demo + 接 sqlite」等于把持久化层换掉，属数据层重写，不在本轮范围。台账记为 **STUCK**，下一步方案见下。
+- 校验：`check-data-dir` / `check-trial-chain` 绿；`check-patient-create` 红（即上面 C）。
+- `npm run check` 仍红，且**与本轮改动无关**：`validate-trial-package.mjs` 要求 `assets/reference-data/…/ovarian_cancer_trials_2026.sqlite` 存在且 sha256 等于 manifest，而该文件被 `.gitignore` 的 `*.sqlite` 排除、仓库里没有生成脚本 → 干净克隆永远过不了这条。两条出路：①把 snapshot 换成可复现生成（jsonl → sqlite 且 manifest 只记 jsonl 哈希）；②把该文件解除忽略并入库。需维护者定。
+
+### C 的下一步（给接手的人）
+
+1. 把 `state.subject` 扩成 `state.subjects[]` + `currentSubjectId`，各记录按 `subjectId` 分区（现有记录已带 subjectId，代价比想象小）；
+2. 迁移：读旧 `state.json` 时若只有 `subject`，升成单元素数组（只增不改，保留 revision 语义）；
+3. 新主体写 `isDemo:0`；载入模拟档案写 `isDemo:1` 且不可删；
+4. sqlite 接入建议直接用 `node:sqlite` 建 `subjects` + 现有状态快照列，先把"多档案"跑通，再谈把整份状态搬过去。
+
 ## 0.1.55（2026-11-11，AI 对话面板契约第三轮复核）
 
 - 补齐**会话变化订阅**：`desktopWorkbenches.subscribe()` 触发 `paneTick` 重渲染（0.1.54 记为已做，代码里实际没有）
