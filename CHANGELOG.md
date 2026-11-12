@@ -1,3 +1,52 @@
+## 0.1.57 — 2026-11-13
+
+补齐 **C 缺口**：从「单主体 JSON」改成「多档案 + 档案主体落 sqlite」。0.1.56 记的 STUCK 本轮做完。
+
+### 数据模型（只增不改）
+
+- `workspace-v1.json` 的 `schemaVersion` 2 → **3**：`state.subject` 升级成 `state.subjects[]` + `state.currentSubjectId`。记录（documents / observations / treatmentEvents / …）**一条都没改**，本来就带 `subjectId`，现在按它分区读。
+- 旧的 `state.json` 迁移是**自动 + 只增**：读到 `schemaVersion < 3` 时先把原文件原样另存为 `workspace-v2-pre-migration-<ts>-<rand>.json`，再写升级后的结构。历史文件内容不改写，`revision` / `idempotencyKey`（commandReceipts）语义不变；同一次迁移不会重复归档。
+- 写盘只留 `subjects[]` + `currentSubjectId`，不再写重复的 `subject` 别名（它在内存里只是"当前档案"的读模型别名）。
+- `/state` 仍返回 `subject`（当前档案）+ 新增 `subjects[]` / `currentSubjectId`；记录按 `subjectId` 过滤，页面只看到当前档案那一份。
+
+### sqlite（`node:sqlite`，档案主体落库）
+
+- 新增 `schema/001-subjects.sql`（`subjects(profile_key, name, meta, is_demo, created_on)` + `app_setting`，迁移只增不改，已应用 id 记在 `schema_migration`）与 `dsh/subject-store.js`。库文件 `<config.root>/subjects-v1.sqlite3`，**数据根仍是 `config.root`**；用户选的病历目录只放原件、转录与 `workspace-v1.json`。
+- `profile_key = <数据根指纹 sha256 前 16 位>:<档案 id>`，换资料目录不会把别的目录的档案混进来。`app_setting.data_root` 与 `settings-v1.json` 互为副本。
+- 真源分工写在代码注释与测试里：**记录真源是 `workspace-v1.json`，sqlite 是档案登记副本**——每次保存写进去，加载时对账（文件里有/库里没有 → 补登记；库里多出来的 → 删掉；文件整个丢失才按库恢复档案列表）。这样删掉的档案不会在下次加载复活，也不会在文件被清空时把档案一起丢掉。
+- 本机 Node 没有 `node:sqlite` 或库不可写时**降级不阻塞**：多档案仍按 JSON 工作，`/state.subjectStore` 与 `/subjects.subjectStore` 如实回 `status: 'unavailable'` + 原因（不伪装 ready）。
+
+### 档案 API（前缀沿用 `/api/ovarian-workbench/v1`）
+
+- `GET /subjects`：`currentSubjectId` + 列表（`isDemo` / `demoId` / `recordCount` / `deletable` / `current`）。
+- `POST /subjects`：`{ label, initialQuestion? }` → 新建**真实档案**（`is_demo = 0`），自动切过去，记录从零开始。
+- `POST /subjects/select`：`{ id }` 切换当前档案。
+- `DELETE /subjects?id=`：只对真实档案生效。演示档案 → **403 + `deleted: null` + `DEMO_SUBJECT_PROTECTED`**；找不到 → **404 + `deleted: null` + `SUBJECT_NOT_FOUND`**（不回 200 假装删掉）；自建档案 → 连同它名下的记录一起删，原件文件留在盘上并写进确认文案。
+- `command` 仍接受 `create-subject`，另加 `switch-subject` / `delete-subject`（旧的单主体客户端不会因为接口改名失效）。
+
+### 演示档案与真实档案并存
+
+- 载入模拟资料（`POST /demo/load`）不再整份覆盖工作区：演示档案以 `isDemo: true` 进入 `subjects[]`，真实档案（哪怕还是空的）保留。有真实记录时仍然拒绝（`DEMO_REQUIRES_EMPTY_WORKSPACE`），被编辑过的演示档案同样拒绝替换。
+- 两套演示档案可互相切换；切换后旧演示档案的记录与文件按原逻辑清理（内容仍是原样才删）。
+
+### 装机层 UI
+
+- 首页新增「患者档案」卡：列表区分**演示 / 我建的**、显示记录条数、当前档案高亮；「＋ 新建档案」→ `POST /subjects` → 自动切换，各页走空态不白屏；自建档案可「删除这个档案」，演示档案显示"演示档案不可删除"。侧栏页脚显示当前档案 + 同款标记。
+- 版本号 `APP_VERSION` 与顶栏 chip 同步到 0.1.57。
+
+### 顺手修掉的三处既有问题（与本轮缺口无关，但不该继续红着）
+
+1. `selectDataRoot` 的 tmp 拦截正则写成 `^(\/tmp|…)`，把 **`/tmp/任意子目录` 全拦了**（只该拦 tmp 根）。改成只精确匹配 tmp 根本身。
+2. `ownsSession()` 在渲染期直接调用宿主服务且不 catch——宿主取上下文一报错整页渲染就崩。改为 fail closed（返回 false）+ 让 `ensureAgentSession` 抛出可读错误。
+3. `test/client.test.js` 的 mock 落后于 0.1.54/0.1.55 定稿的契约（仍 mock `ensureSession`、仍断言"一键发送会自动 submit"），测试一直红在第 186 行之后到不了的地方。已按现契约对齐（`newSession(workspaceId)`、草稿只填不发、归属不可用时按 aria-label 点按钮）。
+
+### 校验
+
+- 三个闸门：`check-patient-create`（含 `--self-test`）/ `check-data-dir` / `check-trial-chain` 全部 **exit 0**。
+- `npm test`：**23/23 pass**（含新增多档案用例：旧文件升级、新建 isDemo=false、sqlite 落库、拒删演示、删自建、重启仍在）。
+- `npm run check` **仍红**，位置与原因同 0.1.56，且与本轮无关：`validate-trial-package.mjs` 要求 `assets/reference-data/…/ovarian_cancer_trials_2026.sqlite` 存在且 sha256 等于 manifest，而 `*.sqlite` 被 `.gitignore` 排除、仓库无生成脚本。本轮**没有**去改该校验或忽略规则。
+- 装机：`release/xyb-community-ovarian-workbench-0.1.57.tgz`（sha256 `2d854b0c…a56874`，含 `schema/001-subjects.sql`）已装进 `~/Library/Application Support/dsh-desktop/harness/profiles/web`，装机副本版本 0.1.57。**Desktop 未重启，实机点击未验证。**
+
 ## 0.1.56 — 2026-11-13
 
 三缺口批量补齐，本轮完成 2/3：

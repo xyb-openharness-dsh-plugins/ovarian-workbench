@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, readdir, realpath, rm, stat, writeFile } from
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { DatabaseSync } from 'node:sqlite'
 
 const pluginPath = process.env.OVARIAN_WORKBENCH_SERVER_PATH || new URL('../dsh/index.js', import.meta.url).pathname
 const pluginUrl = pathToFileURL(pluginPath)
@@ -452,7 +453,7 @@ test('manually saved DSH answers stay private and separate from clinical records
   assert.equal(stale.payload.code, 'RECORD_REVISION_CONFLICT')
 })
 
-test('schema v1 data migrates to v2 with a protected pre-migration copy', async (t) => {
+test('schema v1 data migrates to v3 with a protected pre-migration copy', async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'ovarian-schema-migration-'))
   t.after(() => rm(root, { recursive: true, force: true }))
   const api = harness(join(root, 'settings'))
@@ -464,15 +465,99 @@ test('schema v1 data migrates to v2 with a protected pre-migration copy', async 
   await writeFile(join(dataRoot, 'workspace-v1.json'), legacyBytes, { mode: 0o600 })
   const migrated = await api.call('/api/ovarian-workbench/v1/state')
   assert.equal(migrated.status, 200)
-  assert.equal(migrated.payload.schemaVersion, 2)
+  assert.equal(migrated.payload.schemaVersion, 3)
   assert.equal(migrated.payload.revision, 8)
   assert.deepEqual(migrated.payload.agentResponses, [])
+  assert.equal(migrated.payload.subjects.length, 1, '单主体旧文件升成一条档案')
+  assert.equal(migrated.payload.subjects[0].label, '旧版资料')
+  assert.equal(migrated.payload.subjects[0].isDemo, false)
+  assert.equal(migrated.payload.currentSubjectId, '00000000-0000-4000-8000-000000000001')
+  assert.equal(migrated.payload.subject.label, '旧版资料', '当前档案别名指向升级后的那一条')
   const saved = JSON.parse(await readFile(join(dataRoot, 'workspace-v1.json'), 'utf8'))
-  assert.equal(saved.schemaVersion, 2)
+  assert.equal(saved.schemaVersion, 3)
+  assert.equal(saved.subject, undefined, '写盘只留 subjects[] + currentSubjectId，不再写重复的 subject 别名')
+  assert.equal(saved.subjects.length, 1)
+  assert.equal(saved.currentSubjectId, '00000000-0000-4000-8000-000000000001')
   assert.deepEqual(saved.agentResponses, [])
   const migrationCopies = (await readdir(dataRoot)).filter((name) => name.includes('pre-migration'))
   assert.equal(migrationCopies.length, 1)
   assert.deepEqual(await readFile(join(dataRoot, migrationCopies[0])), legacyBytes)
   await api.call('/api/ovarian-workbench/v1/state')
   assert.equal((await readdir(dataRoot)).filter((name) => name.includes('pre-migration')).length, 1, 'already migrated workspaces are not repeatedly archived')
+})
+
+test('multi-profile: legacy file upgrades, user profiles are real, demo profiles cannot be deleted, restart keeps them', async (t) => {
+  const root = await mkdtemp(join(tmpdir(), 'ovarian-multi-profile-'))
+  t.after(() => rm(root, { recursive: true, force: true }))
+  const settingsRoot = join(root, 'settings')
+  const dataRoot = join(root, 'patient-data')
+  await mkdir(dataRoot)
+  const legacySubjectId = '00000000-0000-4000-8000-0000000000a1'
+  const legacy = { schemaVersion: 2, revision: 3, subject: { id: legacySubjectId, label: '旧档案', createdAt: '2026-01-01T00:00:00.000Z' }, documents: [], claims: [], reviewDecisions: [], clinicalRecords: [], observations: [], treatmentEvents: [], supportEntries: [], questions: [], tasks: [], bookmarks: [], snapshots: [], agentResponses: [], commandReceipts: [], updatedAt: '2026-01-01T00:00:00.000Z' }
+  await writeFile(join(dataRoot, 'workspace-v1.json'), JSON.stringify(legacy), { mode: 0o600 })
+
+  const api = desktopFetchHarness(settingsRoot)
+  const selected = await api.call('/api/ovarian-workbench/v1/settings/data-root', { method: 'POST', body: { path: dataRoot } })
+  assert.equal(selected.status, 200)
+
+  /* ① 旧 state.json（只有 subject）启动：自动升成数组，档案还在 */
+  const upgraded = await api.call('/api/ovarian-workbench/v1/state')
+  assert.equal(upgraded.status, 200)
+  assert.equal(upgraded.payload.schemaVersion, 3)
+  assert.deepEqual(upgraded.payload.subjects.map((item) => ({ id: item.id, label: item.label, isDemo: item.isDemo })), [{ id: legacySubjectId, label: '旧档案', isDemo: false }])
+  assert.equal(upgraded.payload.currentSubjectId, legacySubjectId)
+
+  /* ② 新建档案 → 出现在列表且 isDemo=false，自动切换，记录从零开始 */
+  const created = await api.call('/api/ovarian-workbench/v1/subjects', { method: 'POST', body: { label: '我建的档案' } })
+  assert.equal(created.status, 200)
+  assert.equal(created.payload.created.isDemo, false)
+  assert.equal(created.payload.currentSubjectId, created.payload.created.id)
+  const listed = await api.call('/api/ovarian-workbench/v1/subjects')
+  assert.equal(listed.payload.subjects.length, 2)
+  assert.equal(listed.payload.subjects.filter((item) => item.isDemo).length, 0)
+  assert.equal(listed.payload.subjectStore.status, 'ready', 'node:sqlite 登记表可用')
+  const registry = new DatabaseSync(join(settingsRoot, 'subjects-v1.sqlite3'))
+  const rows = registry.prepare('SELECT name, is_demo FROM subjects ORDER BY created_on').all()
+  registry.close()
+  assert.equal(rows.length, 2, '档案主体已落 sqlite')
+  assert.deepEqual(rows.map((row) => [row.name, Number(row.is_demo)]), [['旧档案', 0], ['我建的档案', 0]])
+  const stateAfterCreate = (await api.call('/api/ovarian-workbench/v1/state')).payload
+  assert.equal(stateAfterCreate.subject.label, '我建的档案', '新建后自动切换')
+  assert.deepEqual(stateAfterCreate.documents, [])
+
+  /* ③ 载入演示档案：isDemo=true，与真实档案并存 */
+  const demo = await api.call('/api/ovarian-workbench/v1/demo/load', { method: 'POST', body: { demoId: 'newly-diagnosed' } })
+  assert.equal(demo.status, 200)
+  const afterDemo = (await api.call('/api/ovarian-workbench/v1/state')).payload
+  assert.equal(afterDemo.subjects.filter((item) => item.isDemo).length, 1)
+  assert.equal(afterDemo.subjects.filter((item) => !item.isDemo).length, 2, '真实档案没有被演示档案覆盖')
+  assert.equal(afterDemo.demoId, 'newly-diagnosed')
+  const demoSubject = afterDemo.subjects.find((item) => item.isDemo)
+  assert.equal(demoSubject.deletable, false)
+
+  /* ④ 删除演示档案 → 被拒（deleted: null + 原因，不是 200 假装删掉） */
+  const refused = await api.call(`/api/ovarian-workbench/v1/subjects?id=${demoSubject.id}`, { method: 'DELETE' })
+  assert.equal(refused.status, 403)
+  assert.equal(refused.payload.deleted, null)
+  assert.equal(refused.payload.reason, 'DEMO_SUBJECT_PROTECTED')
+  assert.ok((await api.call('/api/ovarian-workbench/v1/subjects')).payload.subjects.some((item) => item.id === demoSubject.id), '演示档案仍在')
+
+  /* ⑤ 删除自建档案 → 成功；未知编号 → 404 + 原因 */
+  const removed = await api.call(`/api/ovarian-workbench/v1/subjects?id=${created.payload.created.id}`, { method: 'DELETE' })
+  assert.equal(removed.status, 200)
+  assert.equal(removed.payload.deleted.label, '我建的档案')
+  const missing = await api.call('/api/ovarian-workbench/v1/subjects?id=00000000-0000-4000-8000-00000000dead', { method: 'DELETE' })
+  assert.equal(missing.status, 404)
+  assert.equal(missing.payload.deleted, null)
+  assert.equal(missing.payload.reason, 'SUBJECT_NOT_FOUND')
+
+  /* ⑥ 重启（同一配置目录 + 同一资料目录，新插件实例）：新建的档案仍在 */
+  const again = await api.call('/api/ovarian-workbench/v1/subjects', { method: 'POST', body: { label: '重启后仍在' } })
+  assert.equal(again.status, 200)
+  const restarted = desktopFetchHarness(settingsRoot)
+  const afterRestart = await restarted.call('/api/ovarian-workbench/v1/subjects')
+  assert.equal(afterRestart.status, 200)
+  assert.ok(afterRestart.payload.subjects.some((item) => item.id === again.payload.created.id), '重启后新档案仍在')
+  assert.equal((await restarted.call('/api/ovarian-workbench/v1/state')).payload.currentSubjectId, again.payload.created.id)
+  assert.equal((await restarted.call('/api/ovarian-workbench/v1/subjects')).payload.subjectStore.status, 'ready', '重启后登记表仍可用')
 })

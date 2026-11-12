@@ -6,12 +6,26 @@ import { createRequire } from 'node:module'
 import { dirname, extname, join, resolve, sep } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { extractWithMineru, resolveToken, MINERU_MODEL_DEFAULT } from './mineru.js'
+import { openSubjectStore, rootKeyFor, DATA_ROOT_SETTING } from './subject-store.js'
 
 export const name = 'ovarian-workbench-main'
 export const inject = ['connection', 'webServer', 'credentials']
 export const Config = Schema.object({ root: Schema.string().required() })
 
 const API = '/api/ovarian-workbench/v1'
+/* 档案 API 段路径单独成常量：路由仍是精确匹配，拼接出来的完整路径在 /subjects。 */
+const SUBJECTS_PATH = '/subjects'
+/**
+ * 档案状态版本：v3 = `subjects[]` + `currentSubjectId`（v2 及之前只有单个 `subject`）。
+ * 读旧文件时在 normalizeState 里就地升级，写盘前先另存一份 v2 备份，历史文件内容不改写。
+ */
+const STATE_SCHEMA_VERSION = 3
+/**
+ * 按 subjectId 分区的记录数组。多档案之后每页只拿到"当前档案"的那一份读模型；
+ * 写盘时仍然是整份文件，所以其它档案的记录不会被当前档案的操作抹掉。
+ * commandReceipts 是幂等凭据，跨档案共用，不在此列。
+ */
+const SUBJECT_RECORD_KEYS = ['documents', 'claims', 'reviewDecisions', 'clinicalRecords', 'observations', 'treatmentEvents', 'supportEntries', 'questions', 'tasks', 'bookmarks', 'snapshots', 'agentResponses']
 const MAX_STATE_BYTES = 8 * 1024 * 1024
 const MAX_UPLOAD_BYTES = 20 * 1024 * 1024
 const MAX_JSON_BYTES = Math.ceil(MAX_UPLOAD_BYTES * 4 / 3) + 8192
@@ -29,8 +43,27 @@ const allowedTypes = new Set(['application/pdf', 'image/jpeg', 'image/png', 'ima
 
 function emptyState() {
   return {
-    schemaVersion: 2, revision: 0, subject: null, documents: [], claims: [], reviewDecisions: [], clinicalRecords: [], observations: [],
-    treatmentEvents: [], supportEntries: [], questions: [], tasks: [], bookmarks: [], snapshots: [], agentResponses: [], commandReceipts: [], updatedAt: null, demoId: null, demoName: null,
+    schemaVersion: STATE_SCHEMA_VERSION, revision: 0, subjects: [], currentSubjectId: null, subject: null,
+    documents: [], claims: [], reviewDecisions: [], clinicalRecords: [], observations: [],
+    treatmentEvents: [], supportEntries: [], questions: [], tasks: [], bookmarks: [], snapshots: [], agentResponses: [], commandReceipts: [], updatedAt: null,
+  }
+}
+
+/**
+ * 档案主体：`{ id, label, createdAt, isDemo, demoId, demoName }`。
+ * `subject` 是内存里的"当前档案"别名（读模型用），写盘时会被剥掉，只留 subjects[] + currentSubjectId。
+ */
+function normalizeSubject(value) {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return null
+  const demoId = typeof value.demoId === 'string' && value.demoId ? value.demoId : null
+  const id = typeof value.id === 'string' && /^[a-f\d-]{36}$/i.test(value.id) ? value.id : randomUUID()
+  return {
+    id,
+    label: cleanText(value.label, 80) || '我的资料',
+    createdAt: typeof value.createdAt === 'string' && value.createdAt ? value.createdAt : new Date().toISOString(),
+    isDemo: value.isDemo === true || Boolean(demoId),
+    demoId,
+    demoName: typeof value.demoName === 'string' && value.demoName ? cleanText(value.demoName, 100) : null,
   }
 }
 
@@ -99,21 +132,38 @@ async function readBody(req, limit = MAX_JSON_BYTES) {
   catch { throw Object.assign(new Error('请求内容不是有效 JSON'), { status: 400, code: 'INVALID_JSON' }) }
 }
 
-function normalizeState(state) {
-  if (!state || typeof state !== 'object' || !Number.isInteger(state.schemaVersion) || state.schemaVersion < 1 || state.schemaVersion > 2) throw Object.assign(new Error('工作区数据版本不兼容；原文件已保留，请先备份并按迁移流程恢复'), { status: 409, code: 'SCHEMA_VERSION_UNSUPPORTED' })
+/** 演示档案是否还是原样：它名下的记录逐数组等于模拟资料包里的那一份。 */
+function demoSliceMatches(state, subjectId, seeded) {
+  return SUBJECT_RECORD_KEYS.every((key) => JSON.stringify((state[key] || []).filter((item) => item.subjectId === subjectId)) === JSON.stringify(seeded[key] || []))
+}
+
+function normalizeState(state) {  if (!state || typeof state !== 'object' || !Number.isInteger(state.schemaVersion) || state.schemaVersion < 1 || state.schemaVersion > STATE_SCHEMA_VERSION) throw Object.assign(new Error('工作区数据版本不兼容；原文件已保留，请先备份并按迁移流程恢复'), { status: 409, code: 'SCHEMA_VERSION_UNSUPPORTED' })
   let current = state
   if (current.schemaVersion === 1) current = { ...current, schemaVersion: 2, agentResponses: Array.isArray(current.agentResponses) ? current.agentResponses : [] }
   const base = emptyState()
   for (const key of Object.keys(base)) {
-    if (key === 'schemaVersion' || key === 'revision' || key === 'subject' || key === 'updatedAt') continue
+    if (key === 'schemaVersion' || key === 'revision' || key === 'subject' || key === 'subjects' || key === 'currentSubjectId' || key === 'updatedAt') continue
     if (Array.isArray(current[key])) base[key] = current[key]
   }
-  base.schemaVersion = current.schemaVersion
+  base.schemaVersion = STATE_SCHEMA_VERSION
   base.revision = Number.isInteger(current.revision) ? current.revision : 0
-  base.subject = current.subject && typeof current.subject === 'object' ? current.subject : null
+  /* v2 → v3：只有 `subject` 的旧文件升成单元素 subjects[] 并补 currentSubjectId；
+     记录一条不动、不重写 id，`subject` 在内存里继续作为当前档案别名给读模型用。 */
+  const legacy = current.subject && typeof current.subject === 'object' && !Array.isArray(current.subject)
+    ? normalizeSubject({
+      ...current.subject,
+      ...(current.demoId && !current.subject.demoId ? { demoId: current.demoId } : {}),
+      ...(current.demoName && !current.subject.demoName ? { demoName: current.demoName } : {}),
+    })
+    : null
+  const listed = (Array.isArray(current.subjects) ? current.subjects : []).map(normalizeSubject).filter(Boolean)
+  if (!listed.length && legacy) listed.push(legacy)
+  const seen = new Set()
+  base.subjects = listed.filter((subject) => { if (seen.has(subject.id)) return false; seen.add(subject.id); return true })
+  const requested = typeof current.currentSubjectId === 'string' ? current.currentSubjectId : null
+  base.currentSubjectId = base.subjects.some((subject) => subject.id === requested) ? requested : (base.subjects[0]?.id || null)
+  base.subject = base.subjects.find((subject) => subject.id === base.currentSubjectId) || null
   base.updatedAt = typeof current.updatedAt === 'string' ? current.updatedAt : null
-  base.demoId = typeof current.demoId === 'string' ? current.demoId : null
-  base.demoName = typeof current.demoName === 'string' ? current.demoName : null
   return base
 }
 
@@ -127,6 +177,9 @@ export function apply(ctx, config, adapters = {}) {
   let parseMode = 'mineru-cloud'
   const configRoot = resolve(config.root)
   const settingsFile = join(configRoot, 'settings-v1.json')
+  /* 档案登记表（node:sqlite）：懒打开；打不开不阻塞病历读写，但状态要如实回报。 */
+  let registryPromise = null
+  let registryStatus = { status: 'not-opened', file: null, schema: null, reason: null }
   let mutationQueue = Promise.resolve()
   let stateMigrationQueue = Promise.resolve()
   let settingsQueue = Promise.resolve()
@@ -149,8 +202,65 @@ export function apply(ctx, config, adapters = {}) {
     } catch { throw Object.assign(new Error('指南来源目录不可用；请检查工作台安装包'), { status: 503, code: 'REFERENCE_PACKAGE_UNAVAILABLE' }) }
   }
 
-  async function ensureRootLoaded() {
-    if (rootLoaded) return
+  /**
+   * 档案登记表：`<config.root>/subjects-v1.sqlite3`。
+   * 打不开（本机 Node 没有 node:sqlite / 目录不可写）时返回 null，多档案仍靠
+   * workspace-v1.json 的 subjects[] 工作，`/state.subjectStore` 会说明降级原因。
+   */
+  async function subjectRegistry() {
+    if (!registryPromise) {
+      registryPromise = (async () => {
+        try {
+          const store = await openSubjectStore(join(configRoot, 'subjects-v1.sqlite3'))
+          registryStatus = { status: 'ready', file: store.file, schema: store.schemaVersion, reason: null }
+          return store
+        } catch (error) {
+          registryStatus = { status: 'unavailable', file: join(configRoot, 'subjects-v1.sqlite3'), schema: null, reason: error?.message || 'sqlite unavailable' }
+          return null
+        }
+      })()
+    }
+    return registryPromise
+  }
+
+  /**
+   * 读文件后与登记表对账：
+   * - 文件里有档案：以文件为准，登记表补齐/删掉差异行（删掉的档案不会在下次加载时复活）；
+   * - 文件里一个档案都没有（文件丢失或被清空）：按登记表恢复档案列表，但不造任何记录。
+   * 记录真源始终是 workspace-v1.json，sqlite 是档案登记副本（可枚举、可外部查询、可恢复列表）。
+   */
+  async function reconcileSubjects(state, activeRoot) {
+    const registry = await subjectRegistry()
+    if (!registry) return state
+    const key = rootKeyFor(activeRoot)
+    let rows = []
+    try { rows = registry.list(key) } catch { return state }
+    const byId = new Map(rows.map((row) => [row.id, row]))
+    if (!state.subjects.length && rows.length) {
+      state.subjects = rows
+    } else if (state.subjects.length) {
+      state.subjects = state.subjects.map((subject) => {
+        const row = byId.get(subject.id)
+        if (!row) return subject
+        return { ...subject, isDemo: row.isDemo || subject.isDemo, demoId: row.demoId || subject.demoId || null, demoName: row.demoName || subject.demoName || null }
+      })
+    }
+    const fileIds = new Set(state.subjects.map((subject) => subject.id))
+    for (const subject of state.subjects) if (!byId.has(subject.id)) { try { registry.upsert(key, subject, activeRoot) } catch { /* 下次再对账 */ } }
+    for (const row of rows) if (!fileIds.has(row.id)) { try { registry.remove(key, row.id) } catch { /* 下次再对账 */ } }
+    if (!state.subjects.some((subject) => subject.id === state.currentSubjectId)) state.currentSubjectId = state.subjects[0]?.id || null
+    state.subject = state.subjects.find((subject) => subject.id === state.currentSubjectId) || null
+    return state
+  }
+
+  /** 写盘前把档案写进登记表；登记表不可写不影响病历保存（文件仍是记录真源）。 */
+  async function syncSubjectRegistry(state) {
+    const registry = await subjectRegistry()
+    if (!registry || !root) return
+    try { registry.upsertAll(rootKeyFor(root), state.subjects, root) } catch { /* 下次加载再对账 */ }
+  }
+
+  async function ensureRootLoaded() {    if (rootLoaded) return
     try {
       const settings = JSON.parse(await readFile(settingsFile, 'utf8'))
       if (settings.schemaVersion !== 1 || (settings.dataRoot !== null && settings.dataRoot !== undefined && typeof settings.dataRoot !== 'string')) throw Object.assign(new Error('工作区设置无法读取；请重新选择资料目录'), { status: 500, code: 'SETTINGS_CORRUPT' })
@@ -175,6 +285,8 @@ export function apply(ctx, config, adapters = {}) {
       root = typeof next.dataRoot === 'string' ? resolve(next.dataRoot) : null
       parseMode = next.parseMode === 'local' ? 'local' : 'mineru-cloud'
       rootLoaded = true
+      /* app_setting 落一份 data_root：sqlite 与 settings-v1.json 互为副本，任一侧损坏都能对账。 */
+      try { (await subjectRegistry())?.setSetting(DATA_ROOT_SETTING, next.dataRoot || '') } catch { /* 登记表不可写不阻塞设置保存 */ }
       return next
     })
     settingsQueue = run.catch(() => {})
@@ -215,7 +327,7 @@ export function apply(ctx, config, adapters = {}) {
     await writeFile(absolutePath, markdown, { mode: 0o600 })
     try {
       const result = await mutate((state) => {
-        const doc = state.documents.find((item) => item.id === documentId)
+        const doc = state.documents.find((item) => item.id === documentId && item.subjectId === state.subject?.id)
         if (!doc) throw Object.assign(new Error('原始资料已不存在'), { status: 404, code: 'SOURCE_MISSING' })
         doc.parseStatus = 'parsed'
         doc.parseEngine = engine
@@ -258,17 +370,20 @@ export function apply(ctx, config, adapters = {}) {
           const latestRaw = JSON.parse(latestBuffer.toString('utf8'))
           const latest = normalizeState(latestRaw)
           if (latest.schemaVersion === latestRaw.schemaVersion) return latest
+          /* 只增不改：先把旧文件原样留一份，再写升级后的结构 */
           const backupName = `workspace-v${latestRaw.schemaVersion}-pre-migration-${Date.now()}-${randomUUID().slice(0, 8)}.json`
           await writeFile(join(activeRoot, backupName), latestBuffer, { mode: 0o600, flag: 'wx' })
+          await syncSubjectRegistry(latest)
           await saveState(latest, activeRoot)
           return latest
         })
         stateMigrationQueue = run.catch(() => {})
-        return run
+        return await reconcileSubjects(await run, activeRoot)
       }
-      return normalized
+      return await reconcileSubjects(normalized, activeRoot)
     } catch (error) {
-      if (error.code === 'ENOENT') return emptyState()
+      /* 文件不在但登记表里有档案：按登记表恢复档案列表（记录本来就是空的，不造假数据） */
+      if (error.code === 'ENOENT') return await reconcileSubjects(emptyState(), activeRoot)
       if (error instanceof SyntaxError) throw Object.assign(new Error('工作区数据无法读取；原文件已保留，请先备份后恢复'), { status: 500, code: 'STATE_CORRUPT' })
       throw error
     }
@@ -278,7 +393,9 @@ export function apply(ctx, config, adapters = {}) {
     const activeRoot = requestedRoot || await requireRoot()
     const stateFile = join(activeRoot, 'workspace-v1.json')
     const tempFile = join(activeRoot, `.workspace-${randomUUID()}.tmp`)
-    const contents = JSON.stringify(state)
+    /* `subject` 是当前档案的读模型别名，不写进文件：唯一真源是 subjects[] + currentSubjectId。 */
+    const { subject: _derivedSubject, ...persisted } = state
+    const contents = JSON.stringify(persisted)
     if (Buffer.byteLength(contents) > MAX_STATE_BYTES) throw Object.assign(new Error('本机工作区数据达到容量上限；原资料已保留'), { status: 507, code: 'STATE_TOO_LARGE' })
     try {
       await writeFile(tempFile, contents, { mode: 0o600, flag: 'wx' })
@@ -387,7 +504,7 @@ export function apply(ctx, config, adapters = {}) {
       if (raw.length > 1024 * 1024) throw new Error('manifest too large')
       manifest = JSON.parse(raw.toString('utf8'))
     } catch { throw Object.assign(new Error('未找到有效的工作台备份清单；当前资料未更改'), { status: 400, code: 'BACKUP_MANIFEST_INVALID' }) }
-    if (manifest.format !== 'xyb-ovarian-workbench-backup' || manifest.formatVersion !== 1 || ![1, 2].includes(manifest.schemaVersion) || !Array.isArray(manifest.files) || !manifest.files.length || manifest.files.length > MAX_BACKUP_ENTRIES) throw Object.assign(new Error('备份格式或版本不受支持；当前资料未更改'), { status: 400, code: 'BACKUP_VERSION_UNSUPPORTED' })
+    if (manifest.format !== 'xyb-ovarian-workbench-backup' || manifest.formatVersion !== 1 || ![1, 2, 3].includes(manifest.schemaVersion) || !Array.isArray(manifest.files) || !manifest.files.length || manifest.files.length > MAX_BACKUP_ENTRIES) throw Object.assign(new Error('备份格式或版本不受支持；当前资料未更改'), { status: 400, code: 'BACKUP_VERSION_UNSUPPORTED' })
     const seen = new Set()
     let totalBytes = 0
     const verified = []
@@ -465,7 +582,7 @@ export function apply(ctx, config, adapters = {}) {
         state.commandReceipts.unshift({ key: request.idempotencyKey, result, revision: state.revision })
         state.commandReceipts = state.commandReceipts.slice(0, 200)
       }
-      try { await saveState(state) }
+      try { await syncSubjectRegistry(state); await saveState(state) }
       catch (error) {
         if (result && typeof result.relativePath === 'string' && root) {
           const orphan = resolve(root, result.relativePath)
@@ -479,17 +596,112 @@ export function apply(ctx, config, adapters = {}) {
     return run
   }
 
+  /**
+   * 档案列表（给 UI 的列表型读模型）：演示 / 我建的分开显示，带记录条数。
+   * recordCount 只数当前档案那一份记录，不把别的档案算进来。
+   */
+  function subjectSummaries(state) {
+    return state.subjects.map((subject) => ({
+      id: subject.id,
+      label: subject.label,
+      isDemo: Boolean(subject.isDemo),
+      demoId: subject.demoId || null,
+      demoName: subject.demoName || null,
+      createdAt: subject.createdAt,
+      current: subject.id === state.currentSubjectId,
+      deletable: !subject.isDemo,
+      recordCount: SUBJECT_RECORD_KEYS.reduce((total, key) => total + (state[key] || []).filter((item) => item.subjectId === subject.id).length, 0),
+    }))
+  }
+
+  /**
+   * 单档案读模型：记录按 subjectId 过滤，只回当前档案那一份。
+   * `subject` 保留为当前档案别名，安装层原本就按它渲染，不需要跟着重写。
+   */
+  function subjectView(state) {
+    const currentId = state.currentSubjectId
+    const current = state.subjects.find((subject) => subject.id === currentId) || null
+    const view = {
+      schemaVersion: state.schemaVersion,
+      revision: state.revision,
+      subject: current,
+      subjects: subjectSummaries(state),
+      currentSubjectId: currentId,
+      demoId: current?.demoId || null,
+      demoName: current?.demoName || null,
+      updatedAt: state.updatedAt,
+      subjectStore: registryStatus,
+    }
+    for (const key of SUBJECT_RECORD_KEYS) view[key] = currentId ? (state[key] || []).filter((item) => item.subjectId === currentId) : []
+    return view
+  }
+
+  /** 新建真实档案（isDemo: 0）。建完自动切过去，记录从零开始，各页走空态。 */
+  async function createSubjectRecord(label, initialQuestion, request = {}) {
+    return mutate((state) => {
+      const subject = normalizeSubject({ id: randomUUID(), label, createdAt: new Date().toISOString(), isDemo: false })
+      subject.isDemo = false
+      subject.demoId = null
+      subject.demoName = null
+      state.subjects.push(subject)
+      state.currentSubjectId = subject.id
+      state.subject = subject
+      if (initialQuestion) state.questions.unshift({ id: randomUUID(), subjectId: subject.id, text: initialQuestion, refs: [], createdAt: new Date().toISOString(), revision: 1 })
+      return subject
+    }, request)
+  }
+
+  async function switchSubject(subjectId, request = {}) {
+    return mutate((state) => {
+      const subject = state.subjects.find((item) => item.id === subjectId)
+      if (!subject) throw Object.assign(new Error('目标档案不存在；可能已在其他操作中删除，请刷新后重试'), { status: 404, code: 'SUBJECT_NOT_FOUND' })
+      state.currentSubjectId = subject.id
+      state.subject = subject
+      return { switched: subject }
+    }, request)
+  }
+
+  /**
+   * 删除档案：只对真实档案生效。
+   * - 演示档案：拒绝（deleted: null + DEMO_SUBJECT_PROTECTED），不假装删了；
+   * - 找不到：deleted: null + SUBJECT_NOT_FOUND；
+   * - 自建档案：连同它的记录一起从 state.json 删除，再把登记表那一行删掉。
+   */
+  async function deleteSubjectRecord(subjectId, request = {}) {
+    const outcome = await mutate((state) => {
+      const index = state.subjects.findIndex((item) => item.id === subjectId)
+      if (index < 0) return { deleted: null, reason: 'SUBJECT_NOT_FOUND' }
+      const subject = state.subjects[index]
+      if (subject.isDemo || subject.demoId) return { deleted: null, reason: 'DEMO_SUBJECT_PROTECTED' }
+      state.subjects.splice(index, 1)
+      for (const key of SUBJECT_RECORD_KEYS) state[key] = state[key].filter((item) => item.subjectId !== subject.id)
+      if (state.currentSubjectId === subject.id) {
+        state.currentSubjectId = state.subjects[0]?.id || null
+        state.subject = state.subjects.find((item) => item.id === state.currentSubjectId) || null
+      }
+      return { deleted: { id: subject.id, label: subject.label }, reason: null }
+    }, request)
+    if (outcome.result.deleted) {
+      const registry = await subjectRegistry()
+      if (registry && root) { try { registry.remove(rootKeyFor(root), subjectId) } catch { /* 下次加载对账会再删一次 */ } }
+    }
+    return outcome
+  }
+
   async function command(body) {
     if (!body || typeof body !== 'object' || typeof body.type !== 'string') throw Object.assign(new Error('缺少操作类型'), { status: 400, code: 'INVALID_INPUT' })
     const request = { expectedRevision: Number.isInteger(body.expectedRevision) ? body.expectedRevision : null, idempotencyKey: cleanText(body.idempotencyKey, 100) }
     if (body.type === 'create-subject') {
-      return mutate((state) => {
-        if (state.subject) throw Object.assign(new Error('当前工作区已经有一个患者资料主体'), { status: 409, code: 'SUBJECT_EXISTS' })
-        state.subject = { id: randomUUID(), label: cleanText(body.label, 80) || '我的资料', createdAt: new Date().toISOString() }
-        const initialQuestion = cleanText(body.initialQuestion, 1000)
-        if (initialQuestion) state.questions.unshift({ id: randomUUID(), subjectId: state.subject.id, text: initialQuestion, refs: [], createdAt: new Date().toISOString(), revision: 1 })
-        return state.subject
-      }, request)
+      /* 兼容旧客户端：同一件事现在走 createSubjectRecord（不再有"只能有一个主体"的 409）。 */
+      return await createSubjectRecord(cleanText(body.label, 80), cleanText(body.initialQuestion, 1000), request)
+    }
+    if (body.type === 'switch-subject') {
+      if (!safeId(body.subjectId)) throw Object.assign(new Error('档案编号无效'), { status: 400, code: 'INVALID_INPUT' })
+      return await switchSubject(body.subjectId, request)
+    }
+    if (body.type === 'delete-subject') {
+      if (!safeId(body.subjectId)) throw Object.assign(new Error('档案编号无效'), { status: 400, code: 'INVALID_INPUT' })
+      return await deleteSubjectRecord(body.subjectId, request)
     }
 
     return mutate(async (state) => {
@@ -529,7 +741,7 @@ export function apply(ctx, config, adapters = {}) {
 
       if (body.type === 'add-claim') {
         const documentId = safeId(body.documentId) ? body.documentId : null
-        const document = state.documents.find((item) => item.id === documentId)
+        const document = state.documents.find((item) => item.id === documentId && item.subjectId === state.subject?.id)
         if (!document) throw Object.assign(new Error('请先选择一份已保存的来源原件'), { status: 400, code: 'SOURCE_REQUIRED' })
         const kind = ['metric', 'diagnosis', 'treatment', 'other'].includes(body.kind) ? body.kind : 'other'
         const label = cleanText(body.label, 120)
@@ -844,11 +1056,16 @@ export function apply(ctx, config, adapters = {}) {
     }, request)
   }
 
+  /* 插件卸载时关掉登记表句柄；没打开过就什么都不做。 */
+  ctx.effect(() => () => {
+    registryPromise?.then((store) => store?.close()).catch(() => {})
+  }, 'ovarian-workbench subject registry')
+
   const routes = [
     {
       path: `${API}/health`, handler(req, res) {
         if (req.method !== 'GET') return send(res, 405, { code: 'METHOD_NOT_ALLOWED', message: '只支持读取' })
-        send(res, 200, { ok: true, apiVersion: 'v1', capabilities: ['local-json-store', 'document-import', 'manual-records'] })
+        send(res, 200, { ok: true, apiVersion: 'v1', capabilities: ['local-json-store', 'document-import', 'manual-records', 'multi-profile', 'sqlite-subject-registry'] })
       },
     },
     {
@@ -948,7 +1165,7 @@ export function apply(ctx, config, adapters = {}) {
         const documentId = body.documentId
         if (!safeId(documentId)) throw Object.assign(new Error('资料编号无效'), { status: 400, code: 'INVALID_INPUT' })
         const state = await loadState()
-        const doc = state.documents.find((item) => item.id === documentId)
+        const doc = state.documents.find((item) => item.id === documentId && item.subjectId === state.subject?.id)
         if (!doc) throw Object.assign(new Error('原始资料不存在'), { status: 404, code: 'SOURCE_MISSING' })
         const activeRoot = await requireRoot()
         const sourcePath = resolve(activeRoot, doc.relativePath)
@@ -982,7 +1199,7 @@ export function apply(ctx, config, adapters = {}) {
         const id = new URL(req.url, 'http://127.0.0.1').searchParams.get('id')
         if (!safeId(id)) return send(res, 400, { code: 'INVALID_INPUT', message: '资料编号无效' })
         const state = await loadState()
-        const doc = state.documents.find((item) => item.id === id)
+        const doc = state.documents.find((item) => item.id === id && (!state.currentSubjectId || item.subjectId === state.currentSubjectId))
         if (!doc?.parseRelativePath) return send(res, 404, { code: 'PARSE_RESULT_MISSING', message: '尚无解析草稿' })
         const activeRoot = await requireRoot()
         const path = resolve(activeRoot, doc.parseRelativePath)
@@ -1008,33 +1225,31 @@ export function apply(ctx, config, adapters = {}) {
         const validateFixture = (fixture, id) => {
           if (fixture.demoId !== id || fixture.syntheticOnly !== true || !fixture.workspace || !Array.isArray(fixture.workspace.documents) || !fixture.files || typeof fixture.files !== 'object') throw Object.assign(new Error('模拟资料包结构不完整；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_INVALID' })
           const seeded = normalizeState(fixture.workspace)
-          const subjectId = seeded.subject?.id
-          if (!safeId(subjectId) || seeded.subject.demoId !== id || !seeded.documents.length || seeded.documents.some((doc) => doc.subjectId !== subjectId || !safeId(doc.id))) throw Object.assign(new Error('模拟资料主体或来源关联校验失败；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_INVALID' })
-          return seeded
+          const subject = seeded.subjects.find((item) => item.demoId === id) || seeded.subject
+          if (!subject || !safeId(subject.id) || !seeded.documents.length || seeded.documents.some((doc) => doc.subjectId !== subject.id || !safeId(doc.id))) throw Object.assign(new Error('模拟资料主体或来源关联校验失败；现有工作区未更改'), { status: 503, code: 'DEMO_PACKAGE_INVALID' })
+          /* 演示档案一律 isDemo:1，删除接口会拒绝它 */
+          return { seeded, subject: { ...subject, isDemo: true, demoId: id, demoName: cleanText(fixture.name, 100) } }
         }
         const fixture = await readFixture(demoId)
-        const seeded = validateFixture(fixture, demoId)
+        const { seeded, subject: demoSubject } = validateFixture(fixture, demoId)
         const activeRoot = await requireRoot()
         const existing = await loadState()
-        const hasRecords = Object.keys(emptyState()).some((key) => Array.isArray(existing[key]) && existing[key].length > 0)
-        const shellSubjectOnly = !existing.subject || (existing.revision <= 1 && ['本机资料', '我的资料', ''].includes(existing.subject.label) && Object.keys(existing.subject).every((key) => ['id', 'label', 'createdAt'].includes(key)))
-        const emptyWorkspaceShell = shellSubjectOnly && existing.revision <= 1 && !hasRecords && !existing.demoId
-        let previousFixture = null
-        if (existing.demoId) {
-          if (existing.demoId === demoId && existing.revision === 1) {
-            const original = validateFixture(await readFixture(demoId), demoId)
-            const arraysMatch = Object.keys(emptyState()).filter((key) => Array.isArray(emptyState()[key])).every((key) => JSON.stringify(existing[key] || []) === JSON.stringify(original[key] || []))
-            if (arraysMatch && JSON.stringify(existing.subject) === JSON.stringify(original.subject)) return send(res, 200, { loaded: true, alreadyLoaded: true, demoId, name: cleanText(fixture.name, 100), revision: existing.revision })
-          }
-          if (existing.revision === 1 && existing.demoId !== demoId && demoFiles[existing.demoId]) {
-            const originalFixture = await readFixture(existing.demoId)
-            const original = validateFixture(originalFixture, existing.demoId)
-            const arraysMatch = Object.keys(emptyState()).filter((key) => Array.isArray(emptyState()[key])).every((key) => JSON.stringify(existing[key] || []) === JSON.stringify(original[key] || []))
-            const subjectMatches = JSON.stringify(existing.subject) === JSON.stringify(original.subject)
-            if (arraysMatch && subjectMatches && existing.demoName === cleanText(originalFixture.name, 100)) previousFixture = originalFixture
-          }
+        const realSubjectIds = new Set(existing.subjects.filter((item) => !item.isDemo).map((item) => item.id))
+        const hasRealRecords = SUBJECT_RECORD_KEYS.some((key) => (existing[key] || []).some((item) => realSubjectIds.has(item.subjectId)))
+        if (hasRealRecords) throw Object.assign(new Error('当前资料目录已有本人的病历记录；未做任何更改。模拟档案只在没有真实记录时载入，不会覆盖你的资料'), { status: 409, code: 'DEMO_REQUIRES_EMPTY_WORKSPACE' })
+        /* 同一套已经载入且未编辑：安全空操作（或从另一套切回来） */
+        const alreadyLoaded = existing.subjects.find((item) => item.demoId === demoId)
+        if (alreadyLoaded && demoSliceMatches(existing, alreadyLoaded.id, seeded)) {
+          if (existing.currentSubjectId === alreadyLoaded.id) return send(res, 200, { loaded: true, alreadyLoaded: true, demoId, name: demoSubject.demoName, revision: existing.revision })
+          await switchSubject(alreadyLoaded.id)
+          return send(res, 200, { loaded: true, alreadyLoaded: true, switched: true, demoId, name: demoSubject.demoName })
         }
-        if (!emptyWorkspaceShell && !previousFixture) throw Object.assign(new Error('当前资料目录已有病历或已修改的模拟资料；未做任何更改。只有空白工作区或未编辑的示例档案可以直接载入/切换'), { status: 409, code: 'DEMO_REQUIRES_EMPTY_WORKSPACE' })
+        /* 当前演示档案被编辑过：保护它，不替换、不切换 */
+        const current = existing.subjects.find((item) => item.id === existing.currentSubjectId)
+        if (current?.demoId && demoFiles[current.demoId]) {
+          const original = validateFixture(await readFixture(current.demoId), current.demoId)
+          if (!demoSliceMatches(existing, current.id, original.seeded)) throw Object.assign(new Error('当前示例资料已被修改；未做任何更改。只有未编辑的示例档案可以直接载入/切换'), { status: 409, code: 'DEMO_REQUIRES_EMPTY_WORKSPACE' })
+        }
         const createdFiles = []
         try {
           for (const [relative, contents] of Object.entries(fixture.files)) {
@@ -1047,12 +1262,29 @@ export function apply(ctx, config, adapters = {}) {
             await writeFile(target, bytes, { flag: 'wx', mode: 0o600 })
             createdFiles.push(target)
           }
-          seeded.demoId = demoId
-          seeded.demoName = cleanText(fixture.name, 100)
-          seeded.revision = 1
-          seeded.updatedAt = new Date().toISOString()
-          await saveState(seeded, activeRoot)
-          if (previousFixture) {
+          /* 多档案语义：真实档案（哪怕还是空的）保留，演示档案作为 isDemo:1 的一条并进去，
+             当前档案切到这套演示；被替换掉的旧演示档案连同它的记录一起移除。 */
+          const keptSubjects = existing.subjects.filter((item) => !item.isDemo)
+          const keptIds = new Set(keptSubjects.map((item) => item.id))
+          const droppedDemoIds = existing.subjects.filter((item) => item.isDemo).map((item) => item.id)
+          const next = emptyState()
+          next.subjects = [...keptSubjects, demoSubject]
+          next.currentSubjectId = demoSubject.id
+          next.subject = demoSubject
+          for (const key of SUBJECT_RECORD_KEYS) next[key] = (existing[key] || []).filter((item) => keptIds.has(item.subjectId)).concat(seeded[key] || [])
+          next.revision = 1
+          next.updatedAt = new Date().toISOString()
+          await saveState(next, activeRoot)
+          /* 登记表是副本：文件写成功后再同步；被替换的演示档案行删掉，当前这套写进去 */
+          const registry = await subjectRegistry()
+          if (registry) {
+            for (const id of droppedDemoIds) { try { registry.remove(rootKeyFor(activeRoot), id) } catch { /* 下次加载对账 */ } }
+            try { registry.upsertAll(rootKeyFor(activeRoot), next.subjects, activeRoot) } catch { /* 下次加载对账 */ }
+          }
+          /* 旧演示档案的文件：内容仍是原样才删，用户改过的文件留着 */
+          for (const previous of existing.subjects.filter((item) => item.isDemo && item.demoId && demoFiles[item.demoId])) {
+            const previousFixture = await readFixture(previous.demoId).catch(() => null)
+            if (!previousFixture) continue
             const newPaths = new Set(Object.keys(fixture.files))
             await Promise.all(Object.entries(previousFixture.files).filter(([relative]) => !newPaths.has(relative)).map(async ([relative, originalContents]) => {
               const safeRelative = backupRelativePath(relative)
@@ -1062,12 +1294,51 @@ export function apply(ctx, config, adapters = {}) {
               try { if (await readFile(target, 'utf8') === originalContents) await unlink(target) } catch {}
             }))
           }
-          send(res, 200, { loaded: true, demoId, name: seeded.demoName, revision: seeded.revision, switched: Boolean(previousFixture), recordCounts: { documents: seeded.documents.length, observations: seeded.observations.length, treatmentEvents: seeded.treatmentEvents.length, clinicalRecords: seeded.clinicalRecords.length, supportEntries: seeded.supportEntries.length, questions: seeded.questions.length } })
+          send(res, 200, { loaded: true, demoId, name: demoSubject.demoName, revision: next.revision, switched: droppedDemoIds.length > 0, recordCounts: { documents: seeded.documents.length, observations: seeded.observations.length, treatmentEvents: seeded.treatmentEvents.length, clinicalRecords: seeded.clinicalRecords.length, supportEntries: seeded.supportEntries.length, questions: seeded.questions.length } })
         } catch (error) {
           await Promise.all(createdFiles.map((path) => unlink(path).catch(() => {})))
           if (error.code === 'EEXIST') throw Object.assign(new Error('目标目录存在与示例同名的文件；未覆盖原文件或工作区，已有病历也不会更改'), { status: 409, code: 'DEMO_DIRECTORY_NOT_EMPTY' })
           throw error
         }
+      },
+    },
+    {
+      /* 档案（患者级主体）接口：列表 / 新建 / 删除。删除真实档案会连同它名下的记录一起删；
+         演示档案（is_demo=1）拒绝删除，返回 deleted: null + 原因，不假装成功。 */
+      path: `${API}${SUBJECTS_PATH}`,
+      methods: ['GET', 'POST', 'DELETE'],
+      async handler(req, res) {
+        if (req.method === 'GET') {
+          const state = await loadState()
+          return send(res, 200, { revision: state.revision, currentSubjectId: state.currentSubjectId, subjects: subjectSummaries(state), subjectStore: registryStatus })
+        }
+        if (req.method === 'POST') {
+          const body = await readBody(req, 16 * 1024)
+          const label = cleanText(body.label, 80)
+          const initialQuestion = cleanText(body.initialQuestion, 1000)
+          const request = { expectedRevision: Number.isInteger(body.expectedRevision) ? body.expectedRevision : null, idempotencyKey: cleanText(body.idempotencyKey, 100) }
+          const outcome = await createSubjectRecord(label, initialQuestion, request)
+          return send(res, 200, { created: outcome.result, revision: outcome.state.revision, currentSubjectId: outcome.state.currentSubjectId, subjects: subjectSummaries(outcome.state), subjectStore: registryStatus })
+        }
+        if (req.method === 'DELETE') {
+          const id = new URL(req.url, 'http://127.0.0.1').searchParams.get('id')
+          if (!safeId(id)) return send(res, 400, { deleted: null, reason: 'INVALID_INPUT', message: '档案编号无效' })
+          const outcome = await deleteSubjectRecord(id)
+          if (outcome.result.deleted) return send(res, 200, { deleted: outcome.result.deleted, revision: outcome.state.revision, currentSubjectId: outcome.state.currentSubjectId, subjects: subjectSummaries(outcome.state), subjectStore: registryStatus })
+          if (outcome.result.reason === 'DEMO_SUBJECT_PROTECTED') return send(res, 403, { deleted: null, reason: outcome.result.reason, message: '两套模拟档案是虚构演示内容，不能删除；可以新建自己的档案或切回自己的档案' })
+          return send(res, 404, { deleted: null, reason: outcome.result.reason, message: '找不到这个档案；可能已被删除，请刷新后重试' })
+        }
+        return send(res, 405, { code: 'METHOD_NOT_ALLOWED', message: '只支持读取、新建和删除档案' })
+      },
+    },
+    {
+      path: `${API}${SUBJECTS_PATH}/select`,
+      async handler(req, res) {
+        if (req.method !== 'POST') return send(res, 405, { code: 'METHOD_NOT_ALLOWED', message: '只支持切换档案' })
+        const body = await readBody(req, 16 * 1024)
+        if (!safeId(body.id)) return send(res, 400, { code: 'INVALID_INPUT', message: '档案编号无效' })
+        const outcome = await switchSubject(body.id)
+        send(res, 200, { switched: outcome.result.switched, revision: outcome.state.revision, currentSubjectId: outcome.state.currentSubjectId, subjects: subjectSummaries(outcome.state), subjectStore: registryStatus })
       },
     },
     {
@@ -1079,7 +1350,8 @@ export function apply(ctx, config, adapters = {}) {
           if (error.code !== 'DIRECTORY_UNAVAILABLE') throw error
           state = emptyState(); storageStatus = 'directory-unavailable'
         }
-        send(res, 200, { schemaVersion: state.schemaVersion, revision: state.revision, subject: state.subject, demoId: state.demoId, demoName: state.demoName, documents: state.documents, claims: state.claims, reviewDecisions: state.reviewDecisions, clinicalRecords: state.clinicalRecords, observations: state.observations, treatmentEvents: state.treatmentEvents, supportEntries: state.supportEntries, questions: state.questions, tasks: state.tasks, bookmarks: state.bookmarks, snapshots: state.snapshots, agentResponses: state.agentResponses, updatedAt: state.updatedAt, storage: { status: storageStatus, kind: 'user-selected-directory', path: root } })
+        const view = subjectView(state)
+        send(res, 200, { ...view, storage: { status: storageStatus, kind: 'user-selected-directory', path: root } })
       },
     },
     {
@@ -1088,7 +1360,7 @@ export function apply(ctx, config, adapters = {}) {
         const id = new URL(req.url, 'http://127.0.0.1').searchParams.get('id')
         if (!safeId(id)) return send(res, 400, { code: 'INVALID_INPUT', message: '资料编号无效' })
         const state = await loadState()
-        const doc = state.documents.find((item) => item.id === id)
+        const doc = state.documents.find((item) => item.id === id && (!state.currentSubjectId || item.subjectId === state.currentSubjectId))
         if (!doc) return send(res, 404, { code: 'SOURCE_MISSING', message: '原始资料不存在' })
         const activeRoot = await requireRoot()
         const filePath = resolve(activeRoot, doc.relativePath)
@@ -1111,7 +1383,7 @@ export function apply(ctx, config, adapters = {}) {
         const id = new URL(req.url, 'http://127.0.0.1').searchParams.get('id')
         if (!safeId(id)) return send(res, 400, { code: 'INVALID_INPUT', message: '资料编号无效' })
         const state = await loadState()
-        const doc = state.documents.find((item) => item.id === id)
+        const doc = state.documents.find((item) => item.id === id && (!state.currentSubjectId || item.subjectId === state.currentSubjectId))
         if (!doc) return send(res, 404, { code: 'SOURCE_MISSING', message: '原始资料不存在' })
         const activeRoot = await requireRoot()
         const filePath = resolve(activeRoot, doc.relativePath)
@@ -1139,9 +1411,9 @@ export function apply(ctx, config, adapters = {}) {
 
   if (desktopFetch) {
     ctx.effect(() => {
-      const disposers = routes.map(({ path, handler }) => ctx.connection.fetch.register({
+      const disposers = routes.map(({ path, handler, methods }) => ctx.connection.fetch.register({
         path,
-        methods: ['GET', 'POST'],
+        methods: methods || ['GET', 'POST'],
         requestBody: 'buffered',
         async fetch(request) {
           try {

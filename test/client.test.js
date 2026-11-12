@@ -45,7 +45,7 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   let selectedDirectoryRequest = null
   let nativeSessionDraft = ''
   let nativeSubmitCalls = 0
-  let nativeSessionFolder = null
+  let nativeSessionWorkspace = null
   let nativeCurrentSession = null
   let nativeInputSnapshot = { draft: '', phase: 'plain', occurrences: [] }
   let directoryPickerCalls = 0
@@ -116,7 +116,7 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   let registrationDescriptor
   let clientModule
   Object.defineProperty(dom.window.navigator, 'clipboard', { configurable: true, value: { async writeText(value) { dom.window.__copiedText = value } } })
-  dom.window.__ModuleLoader__ = { load(descriptor) { clientModule = descriptor.factory((name) => { if (name === 'react') return React; throw new Error(`Unexpected module ${name}`) }); clientModule?.apply({ effect(run) { run() }, uiWorkspace: { async pickDirectory() { directoryPickerCalls++; return directoryPickerCalls === 1 ? '/tmp/new-patient-folder' : '/tmp/dsh-workbench-session' } }, sessions: { list: { getSnapshot() { return { byId: {} } } }, scope() { return { get(key) { return key === 'conversation' ? { input: { for() { return { state: { getSnapshot() { return nativeInputSnapshot } }, setDraft(value) { nativeSessionDraft = value }, submit() { nativeSubmitCalls++; nativeInputSnapshot = { draft: '', phase: 'plain', occurrences: [] } } } } } } : null } } } }, desktopWorkbenches: { register(descriptor, Panel) { registrationDescriptor = descriptor; registeredPanel = Panel; return () => {} }, isActive() { return true }, currentSession() { return nativeCurrentSession }, ownsSession(id) { if (ownershipUnavailable) throw new Error('mock service caller context unavailable'); return id === 'owned-session' && nativeCurrentSession === id }, async ensureSession({ folder }) { nativeSessionFolder = folder; nativeCurrentSession = 'owned-session'; return 'owned-session' } } }) } }
+  dom.window.__ModuleLoader__ = { load(descriptor) { clientModule = descriptor.factory((name) => { if (name === 'react') return React; throw new Error(`Unexpected module ${name}`) }); clientModule?.apply({ effect(run) { run() }, uiWorkspace: { async pickDirectory() { directoryPickerCalls++; return directoryPickerCalls === 1 ? '/tmp/new-patient-folder' : '/tmp/dsh-workbench-session' } }, sessions: { list: { getSnapshot() { return { byId: {} } } }, scope() { return { get(key) { return key === 'conversation' ? { input: { for() { return { state: { getSnapshot() { return nativeInputSnapshot } }, setDraft(value) { nativeSessionDraft = value }, submit() { nativeSubmitCalls++; nativeInputSnapshot = { draft: '', phase: 'plain', occurrences: [] } } } } } } : null } } } }, desktopWorkbenches: { register(descriptor, Panel) { registrationDescriptor = descriptor; registeredPanel = Panel; return () => {} }, isActive() { return true }, currentSession() { return nativeCurrentSession }, ownsSession(id) { if (ownershipUnavailable) throw new Error('mock service caller context unavailable'); return id === 'owned-session' && nativeCurrentSession === id }, defaultWorkspace() { return { workspaceId: 'ws-owned' } }, async newSession(workspaceId) { nativeSessionWorkspace = workspaceId; nativeCurrentSession = 'owned-session'; return 'owned-session' } } }) } }
   const source = await readFile(clientSourcePath, 'utf8')
   vm.runInNewContext(source, { window: dom.window, document: dom.window.document, navigator: dom.window.navigator, URL: dom.window.URL, URLSearchParams: dom.window.URLSearchParams, Blob, FileReader: FixtureFileReader, FormData: dom.window.FormData, TextEncoder, setTimeout, clearTimeout, fetch: dom.window.fetch, AbortController, console, globalThis: dom.window })
   assert.equal(typeof registeredPanel, 'function')
@@ -134,6 +134,9 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.match(dom.window.document.body.textContent, /测试资料/)
   const packageVersion = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8')).version
   assert.ok(dom.window.document.body.textContent.includes(`v${packageVersion}`), `workbench header reflects package version ${packageVersion}`)
+  /* 多档案：首页必须有"患者级"新建入口（不是"新建一条记录"） */
+  assert.match(dom.window.document.body.textContent, /患者档案/, 'home exposes the patient profile section')
+  assert.ok([...dom.window.document.querySelectorAll('button')].some((item) => item.textContent.trim() === '＋ 新建档案'), 'home offers a patient-level 新建档案 entry')
 
   /* 36 号 · 疾病概要：装机层结构断言（按钮 → 四段顺序 → 返回/关闭/Esc → 焦点回收） */
   assert.match(dom.window.document.body.textContent, /D\+N 状态卡 · 距下一阶段/, 'status card eyebrow present')
@@ -378,21 +381,27 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.ok(copyDraftButton?.disabled, 'copying personal records to the system clipboard also requires explicit consent')
   await act(async () => { shareConsent.click(); await new Promise((resolve) => setTimeout(resolve, 5)) })
   await clickText('一键发送到 DSH Agent')
-  assert.equal(nativeSessionFolder, '/tmp/dsh-workbench-session')
+  assert.equal(nativeSessionWorkspace, 'ws-owned', 'session creation goes through the host default workspace instead of asking the client to pick a folder')
   assert.match(nativeSessionDraft, /这项指标和我的治疗日期/)
   assert.match(nativeSessionDraft, /引用可核对的指南\/权威来源/)
-  assert.equal(nativeSubmitCalls, 1, 'explicit user click submits the draft through the native DSH input action')
+  assert.equal(nativeSubmitCalls, 0, 'draft is only placed into the native input; sending stays a user action (0.1.54 契约第 8 条)')
   assert.match(dom.window.document.body.textContent, /DSH 原生 AI 对话/)
   assert.match(dom.window.document.body.textContent, /mock DSH 原生对话/)
   const pickerCallsBeforeOwnershipFailure = directoryPickerCalls
   ownershipUnavailable = true
-  await clickText('收起 AI 对话')
-  await clickText('打开 AI 对话')
+  /* 归属无法确认时按钮文案会退成「AI 对话」，所以按 aria-label 定位而不是按固定文案 */
+  const clickAgentToggle = async () => {
+    const button = [...dom.window.document.querySelectorAll('button')].find((item) => (item.getAttribute('aria-label') || '').startsWith('AI 对话'))
+    assert.ok(button, 'AI 对话按钮存在')
+    await act(async () => { button.dispatchEvent(new dom.window.MouseEvent('click', { bubbles: true })); await new Promise((resolve) => setTimeout(resolve, 10)) })
+  }
+  await clickAgentToggle()
+  await clickAgentToggle()
   assert.match(dom.window.document.body.textContent, /暂时无法确认此会话是否归属小巢宝工作台/)
   assert.equal(directoryPickerCalls, pickerCallsBeforeOwnershipFailure, 'unavailable ownership must fail closed without opening the picker or creating another session')
-  assert.equal(nativeSubmitCalls, 1, 'unavailable ownership must not send any native draft')
+  assert.equal(nativeSubmitCalls, 0, 'unavailable ownership must not send any native draft')
   ownershipUnavailable = false
-  await clickText('打开 AI 对话')
+  await clickAgentToggle()
   assert.match(dom.window.document.body.textContent, /mock DSH 原生对话/, 'retry with available ownership restores the same conversation')
 
   /* ---- 自建顶栏（prompts/DSH-WORKBENCH-TOP-BAR.md）---- */
@@ -447,7 +456,7 @@ test('workbench renders, compares independent metrics, searches and bookmarks tr
   assert.match(dom.window.document.body.textContent, /已有草稿、图片\/附件引用或正在提交/)
   nativeInputSnapshot = { draft: '', phase: 'plain', occurrences: [], imageIds: ['draft-image-1'] }
   await clickText('一键发送到 DSH Agent')
-  assert.equal(nativeSubmitCalls, 1, 'one-click send refuses to submit a draft image that the user has not reviewed')
+  assert.equal(nativeSubmitCalls, 0, 'one-click send refuses to submit a draft image that the user has not reviewed')
   assert.match(dom.window.document.body.textContent, /图片\/附件引用/)
   nativeInputSnapshot = { draft: '', phase: 'plain', occurrences: [] }
   await clickText('复制内容到对话框')
@@ -554,6 +563,17 @@ test('newly diagnosed patient can read first, then create local records and reta
   const state = { schemaVersion: 2, revision: 0, subject: null, storage: { status: 'configured', kind: 'user-selected-directory', path: '/tmp/patient-records' }, documents: [], claims: [], reviewDecisions: [], clinicalRecords: [], observations: [], treatmentEvents: [], supportEntries: [], questions: [], tasks: [], bookmarks: [], snapshots: [], agentResponses: [] }
   dom.window.fetch = async (url, options = {}) => {
     if (String(url).endsWith('/state')) return { ok: true, status: 200, json: async () => structuredClone(state) }
+    if (String(url).includes('/subjects')) {
+      /* 多档案：新建档案走 POST /subjects（0.1.57 起不再借 /command create-subject） */
+      const body = JSON.parse(options.body)
+      const subject = { id: uuid(51), label: body.label || '我的资料', isDemo: false, createdAt: '2026-10-20T00:00:00.000Z' }
+      state.subjects = [{ ...subject, current: true, deletable: true, recordCount: 0 }]
+      state.currentSubjectId = subject.id
+      state.subject = subject
+      if (body.initialQuestion) state.questions.unshift({ id: uuid(52), subjectId: subject.id, text: body.initialQuestion })
+      state.revision++
+      return { ok: true, status: 200, json: async () => ({ created: subject, revision: state.revision, currentSubjectId: subject.id, subjects: state.subjects }) }
+    }
     if (String(url).endsWith('/command')) {
       const body = JSON.parse(options.body)
       if (body.type === 'create-subject') {

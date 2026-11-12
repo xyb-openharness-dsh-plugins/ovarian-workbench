@@ -1,6 +1,6 @@
 {
   "name": "@xyb-community/ovarian-workbench",
-  "version": "0.1.56",
+  "version": "0.1.57",
   "description": "面向卵巢癌患者与照护者的本机病程资料、治疗历程、指标趋势与医患沟通工作台设计项目",
   "private": true,
   "type": "module",
@@ -18,10 +18,11 @@
     "cordis.patch.yml",
     "VERSION",
     "README.md",
-    "NOTICE.md"
+    "NOTICE.md",
+    "schema"
   ],
   "scripts": {
-    "check": "node --check dsh/index.js && node --check dsh/mineru.js && node --check lib/client.js && node scripts/check-agent-pane-contract.mjs . && node scripts/check-workbench-package.mjs . && node scripts/validate-trial-package.mjs . && node scripts/check-primer-links.mjs && node scripts/check-primer-client.mjs && node scripts/check-data-dir.mjs . && node scripts/check-trial-chain.mjs . && node scripts/check-patient-create.mjs .",
+    "check": "node --check dsh/index.js && node --check dsh/mineru.js && node --check dsh/subject-store.js && node --check lib/client.js && node scripts/check-agent-pane-contract.mjs . && node scripts/check-workbench-package.mjs . && node scripts/validate-trial-package.mjs . && node scripts/check-primer-links.mjs && node scripts/check-primer-client.mjs && node scripts/check-data-dir.mjs . && node scripts/check-trial-chain.mjs . && node scripts/check-patient-create.mjs .",
     "pack:check": "npm pack --dry-run",
     "test": "node --test"
   },
